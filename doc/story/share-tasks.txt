@@ -1,0 +1,8 @@
+STORY 
+
+    As a user, I want to be able to share my tasks with other users 
+
+Basic Requirements 
+
+    BR01. The other user must exist. 
+    BR02. The other user will be identified through email. 

@@ -1,0 +1,14 @@
+STORY 
+
+    As a user, I want to update my user data. 
+
+Basic Requirements: 
+
+    BR01. If the user tries to update its email
+
+        - The new provided email must not haver another users in the application.
+        - The new provided email must be confirmed before it updates user's email. 
+
+    BR02. If the user tries to update its password 
+
+        - An email confirmation must be done before proceeding to password change.

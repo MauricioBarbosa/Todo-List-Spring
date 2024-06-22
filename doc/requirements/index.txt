@@ -1,0 +1,29 @@
+Task Management Application 
+
+    This application is designed to be a task management application where users can register themselves in the application, so they can register tasks, manage their status, label 
+their priorities, and me reminded about a task that is about to due. 
+    Users can share their tasks among each other. 
+
+Actors: 
+
+    Application: Task Management Application 
+    User: The user who access the application as a simple user
+
+Basic Requirements:
+
+    BR01. User must be able to login
+    BR02. User must be able to manage tasks, status 
+    BR03. The application must notify when a task is about do due and it not completed yet
+    BR04. User must be able to share tasks with another user
+    BR05. The user must be able to register himself
+    BR06. The user must be able to exchange his password
+
+Functional Requirements: 
+
+    FR01. To login in the application, the user must inform its email and password
+    FR02. To register a task, the user must inform a description, a label, a priority and a date to due
+    FR03. In case of success on login, the user be able to see its tasks and shared tasks from other users
+    FR04. Is case of a task is due or three days about to due, the user must be reminded with a notification on the screen 
+    FR05. The notification of due task must also be sent on email
+    FR06. When a new user tries to register himself in the system, an email confirmation must be done 
+    FR07. When a user tries to exchange its password, a email confirmation must be done

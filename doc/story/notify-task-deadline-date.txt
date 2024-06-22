@@ -1,0 +1,10 @@
+STORY
+
+    As a user, I want to be notified when a task is approaching to its deadline date and it's not done. 
+
+Basic Requirements 
+
+    BR01. The user must be notified in the email. 
+    BR02. The user must be notified on application's panel. 
+    BR03. The user must be notified when the a task is dued or is due in three days to due
+    

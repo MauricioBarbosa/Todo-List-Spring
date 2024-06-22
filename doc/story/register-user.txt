@@ -1,0 +1,12 @@
+STORY 
+
+    As a user, I want to register myself on the application 
+
+Basic Requirements
+
+    BR01. The user must provide its email, name and password to register himself. 
+    BR02. The password must be strong(with different characters) and have at least 8 characters. 
+    BR03. The provided email must not have been registered previously. 
+    BR04. In case of the provided email already is registered in the database, the application must offer to user the password exchange user story as a option. 
+    BR05. The provided email must be confirmed. 
+    

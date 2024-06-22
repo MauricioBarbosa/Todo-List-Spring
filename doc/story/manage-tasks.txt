@@ -1,0 +1,13 @@
+STORY
+
+    As a user,  i want to be able to manage my tasks, by creating, deleting, updating their descriptions and deadline date. 
+
+Basic Requirements: 
+
+    BR01. A user must be authenticated to register a task. 
+    BR02. The user cannot register a task without a description and a Date. 
+    BR03. To register a task, the user must inform a description and a deadline date. 
+
+Non-functional requirements: 
+
+    NFR01. A task must not be completely deleted from the database. 

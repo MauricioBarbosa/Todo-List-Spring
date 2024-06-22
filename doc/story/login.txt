@@ -1,0 +1,8 @@
+STORY
+
+    As a user, I want to be able to login in the application
+
+    BR01. The user must exist 
+    BR02. User email and password must match
+    BR03. An email confirmation must be done
+    BR04. If email, password or confirmation is not valid, the user must be informed on application 
