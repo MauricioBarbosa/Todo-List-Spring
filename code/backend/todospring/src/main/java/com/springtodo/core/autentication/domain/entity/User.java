@@ -1,16 +1,19 @@
 package com.springtodo.core.autentication.domain.entity;
 
+import java.io.Serializable;
+
 import com.springtodo.core.autentication.domain.exception.EmailNotInformed;
 import com.springtodo.core.autentication.domain.exception.PasswordNotInformed;
 
 import lombok.Getter;
 
 @Getter
-public class User {
+public class User implements Serializable {
+    private String id;
     private String email;
     private String password;
 
-    User(String email, String password) throws EmailNotInformed, PasswordNotInformed {
+    public User(String email, String password) throws EmailNotInformed, PasswordNotInformed {
         if (email == null) {
             throw new EmailNotInformed("Email was not informed");
         }
@@ -23,7 +26,7 @@ public class User {
         this.password = password;
     }
 
-    User(String email) throws EmailNotInformed {
+    public User(String email) throws EmailNotInformed {
         if (email == null) {
             throw new EmailNotInformed("Email was not informed");
         }
