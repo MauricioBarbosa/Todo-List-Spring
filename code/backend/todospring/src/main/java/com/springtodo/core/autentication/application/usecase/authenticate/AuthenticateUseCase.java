@@ -19,17 +19,19 @@ public class AuthenticateUseCase {
     private static final Logger LOG = LoggerFactory.getLogger(PersistenceConfig.class);
 
     public OutputDTO execute(InputDTO inputDto) {
-        try {
-            userRepository.getUser(inputDto.getEmail());
-        } catch (Exception e) {
-            LOG.error("error on getting user", e);
-        }
 
         /**
-         * 1 - Recuperar um usuário do banco de dados
-         * 2 - Autenticá-lo(verificar se a senha bate com a informada e o email também)
-         * 3 - Gerar um token
+         * 1 - Recupera o usuário do banco de dados
+         * 1.1 - Erro ao recuperar usuário do banco de dados
+         * 1.1.1 - Lança Exceção
+         * 2 - Confirme que o usuário é autentico
+         * 2.2 - O usuário não é autentico
+         * 2.2.2 - Lança Exceção
+         * 3 - Gera o token de sessão
+         * 3.1 - Erro ao gerar o token de sessão
+         * 3.1.1 - Lança Exceção
          */
-        return new OutputDTO();
+
+        throw new RuntimeException("Not implemented yet");
     }
 }
