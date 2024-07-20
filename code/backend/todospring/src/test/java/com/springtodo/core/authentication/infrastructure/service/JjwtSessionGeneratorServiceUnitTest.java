@@ -1,5 +1,7 @@
 package com.springtodo.core.authentication.infrastructure.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import java.util.UUID;
@@ -51,10 +53,9 @@ public class JjwtSessionGeneratorServiceUnitTest {
 
         when(jwts.builder().compact()).thenThrow(exception);
 
-        try {
+        Exception thrownException = assertThrows(Exception.class, () -> {
             jjwtSessionGeneratorService.createSession(userId, email, expirationInMinutes);
-        } catch (Exception e) {
-            // TODO: handle exception
-        }
+        });
+        assertEquals(exception, thrownException);
     }
 }
