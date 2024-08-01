@@ -7,12 +7,14 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
+import java.time.DateTimeException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.UUID;
 
-import org.eclipse.jetty.io.QuietException.Exception;
+import javax.crypto.spec.SecretKeySpec;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,8 +28,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.springtodo.core.autentication.domain.exception.CouldNotCreateSession;
 import com.springtodo.core.autentication.infrastructure.service.sessiongenerator.JjwtSessionGeneratorService;
 
+import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.impl.DefaultJwtBuilder;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.WeakKeyException;
 
 @ExtendWith(MockitoExtension.class)
 public class JjwtSessionGeneratorServiceUnitTest {
@@ -44,53 +48,65 @@ public class JjwtSessionGeneratorServiceUnitTest {
     private String email;
     private long expirationInMinutes;
 
-    private MockedStatic<Keys> mockedKeys;
-
     @BeforeEach
-    void setUp() {
+    void init() {
         MockitoAnnotations.openMocks(this);
 
         this.userId = UUID.randomUUID().toString();
         this.email = "someemail@email.com";
         this.expirationInMinutes = 30;
 
-        jjwtSessionGeneratorService = new JjwtSessionGeneratorService(secretKey, applicationTimeZone, sessionIssuer,
+        jjwtSessionGeneratorService = new JjwtSessionGeneratorService(secretKey, applicationTimeZone,
+                sessionIssuer,
                 sessionSubject);
-
-        this.mockedKeys = mockStatic(Keys.class);
     }
 
     @Test
     @DisplayName("It must thrown an error when getting hmac sha key fails")
     void testWhenJwtGenerationFails() {
-        Exception exception = new Exception("An error has occured");
+        WeakKeyException exception = new WeakKeyException("An error has occured");
 
-        try(){
-            
-        }
+        MockedStatic<Keys> mockedKeys = mockStatic(Keys.class);
 
-        mockedKeys.when(() -> Keys.hmacShaKeyFor(any())).thenReturn(this.mockedKeys);
-        mockedKeys.when(mockedKeys)
+        mockedKeys.when(() -> Keys.hmacShaKeyFor(any())).thenThrow(exception);
 
-        Exception thrownException = assertThrows(Exception.class, () -> {
+        JjwtSessionGeneratorService jjwtSessionGeneratorService = new JjwtSessionGeneratorService(secretKey,
+                applicationTimeZone, sessionIssuer,
+                sessionSubject);
+
+        mockedKeys.close();
+
+        assertThrows(CouldNotCreateSession.class, () -> {
             jjwtSessionGeneratorService.createSession(userId, email, expirationInMinutes);
         });
 
-        assertEquals(CouldNotCreateSession.class, thrownException.getClass());
     }
 
     @Test
     @DisplayName("It must thrown an error when getting zoned time fails")
     void testeWhenGettingTimeZoneFails() {
-        Exception exception = new Exception("A timezone error has occurred");
+        DateTimeException exception = new DateTimeException("A timezone error has occurred");
 
-        when(ZoneId.of(anyString())).thenThrow(exception);
+        MockedStatic<Keys> mockedKeys = mockStatic(Keys.class);
 
-        Exception thrownException = assertThrows(Exception.class, () -> {
-            jjwtSessionGeneratorService.createSession(userId, email, expirationInMinutes);
+        mockedKeys.when(() -> Keys.hmacShaKeyFor(any()))
+                .thenReturn(new SecretKeySpec(this.secretKey.getBytes(), "HmacSHA512"));
+
+        MockedStatic<ZoneId> mockedZoneId = mockStatic(ZoneId.class);
+
+        mockedZoneId.when(() -> ZoneId.of(any())).thenThrow(exception);
+
+        JjwtSessionGeneratorService jjwtSessionGeneratorService = new JjwtSessionGeneratorService(secretKey,
+                applicationTimeZone, sessionIssuer,
+                sessionSubject);
+
+        mockedKeys.close();
+        mockedZoneId.close();
+
+        assertThrows(CouldNotCreateSession.class, () -> {
+            jjwtSessionGeneratorService.createSession(userId, email,
+                    expirationInMinutes);
         });
-
-        assertEquals(CouldNotCreateSession.class, thrownException.getClass());
     }
 
     @Test
@@ -112,8 +128,12 @@ public class JjwtSessionGeneratorServiceUnitTest {
         when(jwtBuilder.signWith(any())).thenReturn(jwtBuilder);
         when(jwtBuilder.compact()).thenReturn(expectedGeneratedJwt);
 
-        String generatedJwt = jjwtSessionGeneratorService.createSession(expectedGeneratedJwt, expectedGeneratedJwt,
-                expirationInMinutes);
+        MockedStatic<Jwts> mockedJwts = mockStatic(Jwts.class);
+
+        mockedJwts.when(() -> Jwts.builder()).thenReturn(jwtBuilder);
+
+        String generatedJwt = this.jjwtSessionGeneratorService.createSession(userId,
+                email, expirationInMinutes);
 
         assertEquals(expectedGeneratedJwt, generatedJwt);
     }
