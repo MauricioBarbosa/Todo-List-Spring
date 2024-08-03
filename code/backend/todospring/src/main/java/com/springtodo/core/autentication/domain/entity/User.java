@@ -1,7 +1,5 @@
 package com.springtodo.core.autentication.domain.entity;
 
-import java.io.Serializable;
-
 import com.springtodo.core.autentication.domain.exception.EmailNotInformed;
 import com.springtodo.core.autentication.domain.exception.IdNotInformed;
 import com.springtodo.core.autentication.domain.exception.PasswordNotInformed;
@@ -9,7 +7,7 @@ import com.springtodo.core.autentication.domain.exception.PasswordNotInformed;
 import lombok.Getter;
 
 @Getter
-public class User implements Serializable {
+public class User {
     private String id;
     private String email;
     private String password;
