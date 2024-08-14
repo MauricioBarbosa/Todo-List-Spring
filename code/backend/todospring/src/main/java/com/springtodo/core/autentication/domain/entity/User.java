@@ -25,14 +25,24 @@ public class User {
             throw new PasswordNotInformed("Password was not informed");
         }
 
+        this.id = id;
         this.email = email;
         this.password = password;
     }
 
     public boolean isThisUser(String password) {
-        if (password == this.password) {
+        if (this.password.equals(password)) {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id='" + id + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                '}';
     }
 }

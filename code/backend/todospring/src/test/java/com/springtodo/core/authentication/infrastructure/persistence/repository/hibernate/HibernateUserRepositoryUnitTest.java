@@ -16,8 +16,9 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.springtodo.core.autentication.domain.entity.User;
+import com.springtodo.core.autentication.domain.exception.CouldNotRetrieveUser;
 import com.springtodo.core.autentication.domain.exception.UserNotFoundException;
-import com.springtodo.core.autentication.infrastructure.persistence.repository.hibernate.HibernateUserRepository;
+import com.springtodo.core.autentication.infrastructure.persistence.repository.hibernate_impl.HibernateUserRepository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -50,7 +51,7 @@ public class HibernateUserRepositoryUnitTest {
         when(query.setParameter(anyString(), anyString())).thenReturn(query);
         when(query.getSingleResult()).thenThrow(error);
 
-        assertThrows(error.getClass(), () -> this.hibernateUserRepository.getUser(email));
+        assertThrows(CouldNotRetrieveUser.class, () -> this.hibernateUserRepository.getUser(email));
     }
 
     @Test
@@ -68,7 +69,7 @@ public class HibernateUserRepositoryUnitTest {
 
     @Test
     @DisplayName("It must return an user")
-    void testWhenEntityManagerReturnsUser() {
+    void testWhenEntityManagerReturnsUser() throws UserNotFoundException, CouldNotRetrieveUser {
         String email = "someemail@dot.com";
         String password = "somepassword";
         String id = "someId";

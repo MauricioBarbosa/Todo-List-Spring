@@ -7,7 +7,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
 import com.springtodo.core.autentication.domain.repository.UserRepository;
-import com.springtodo.core.autentication.infrastructure.persistence.repository.hibernate.HibernateUserRepository;
+import com.springtodo.core.autentication.infrastructure.persistence.repository.hibernate_impl.HibernateUserRepository;
 
 @Configuration
 public class AppConfig {

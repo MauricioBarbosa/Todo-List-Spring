@@ -1,22 +1,21 @@
 package com.springtodo.core.autentication.application.usecase.authenticate;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.springtodo.config.PersistenceConfig;
 import com.springtodo.core.autentication.application.usecase.authenticate.dto.InputDTO;
 import com.springtodo.core.autentication.application.usecase.authenticate.dto.OutputDTO;
-import com.springtodo.core.autentication.domain.repository.UserRepository;
+import com.springtodo.core.autentication.domain.service.AuthorizationService;
 
 @Service
 public class AuthenticateUseCase {
 
     @Autowired
-    private UserRepository userRepository;
+    private AuthorizationService authorizationService;
 
-    private static final Logger LOG = LoggerFactory.getLogger(PersistenceConfig.class);
+    @Autowired
+    private Logger LOG;
 
     public OutputDTO execute(InputDTO inputDto) {
 
