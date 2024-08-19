@@ -1,4 +1,4 @@
-package com.springtodo.core.authentication.infrastructure.persistence.repository.hibernate;
+package com.springtodo.unit.core.authentication.infrastructure.persistence.repository.hibernate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -80,7 +80,7 @@ public class HibernateUserRepositoryUnitTest {
         when(query.setParameter(anyString(), anyString())).thenReturn(query);
         when(query.getSingleResult()).thenReturn(user);
 
-        User foundUser = this.hibernateUserRepository.getUser(email);
+        User foundUser = this.hibernateUserRepository.getUserByEmailAddress(email);
 
         assertEquals(foundUser, user);
     }

@@ -1,4 +1,4 @@
-package com.springtodo.core.authentication.infrastructure.service;
+package com.springtodo.unit.core.authentication.infrastructure.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

@@ -1,4 +1,4 @@
-package com.springtodo.core.authentication.domain.entity;
+package com.springtodo.unit.core.authentication.domain.entity;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;

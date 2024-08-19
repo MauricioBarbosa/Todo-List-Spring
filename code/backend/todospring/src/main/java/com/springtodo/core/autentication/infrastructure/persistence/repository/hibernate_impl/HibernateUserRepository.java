@@ -2,6 +2,8 @@ package com.springtodo.core.autentication.infrastructure.persistence.repository.
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.springtodo.core.autentication.domain.entity.User;
 import com.springtodo.core.autentication.domain.exception.CouldNotRetrieveUser;
@@ -12,16 +14,22 @@ import com.springtodo.core.autentication.infrastructure.persistence.repository.h
 
 import jakarta.persistence.NoResultException;
 
+@Component
 public class HibernateUserRepository extends UserRepository {
 
     private static final Logger LOG = LoggerFactory.getLogger(HibernateUserRepository.class);
 
+    @Autowired
     private UserJpaRepository userJpaRepository;
 
     @Override
     public User getUserByEmailAddress(String email) throws UserNotFoundException, CouldNotRetrieveUser {
         try {
             UserJpa userJpa = userJpaRepository.getByEmailAddress(email);
+
+            if (userJpa == null) {
+                throw new NoResultException("User not found");
+            }
 
             return new User(Long.toString(userJpa.getId()), userJpa.getEmail(), userJpa.getPassword());
         } catch (NoResultException e) {

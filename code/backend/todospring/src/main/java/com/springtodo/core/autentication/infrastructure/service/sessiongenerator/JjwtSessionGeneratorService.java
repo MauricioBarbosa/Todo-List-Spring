@@ -9,8 +9,7 @@ import java.util.Map;
 
 import javax.crypto.SecretKey;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.springtodo.core.autentication.domain.exception.CouldNotCreateSession;
@@ -19,25 +18,23 @@ import com.springtodo.core.autentication.domain.service.SessionGeneratorService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.WeakKeyException;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 public class JjwtSessionGeneratorService extends SessionGeneratorService {
 
+    @Value("${jwtSecretKey}")
     private String secretKey;
+
+    @Value("${applicationTimeZone}")
     private String applicationTimeZone;
+
+    @Value("${jwtSessionIssuer}")
     private String sessionIssuer;
+
+    @Value("${jwtSessionSubject}")
     private String sessionSubject;
-
-    private Logger LOG;
-
-    public JjwtSessionGeneratorService(String secretKey, String applicationTimeZone, String sessionIssuer,
-            String sessionSubject) {
-        this.secretKey = secretKey;
-        this.applicationTimeZone = applicationTimeZone;
-        this.sessionIssuer = sessionIssuer;
-        this.sessionSubject = sessionSubject;
-        this.LOG = LoggerFactory.getLogger(JjwtSessionGeneratorService.class);
-    }
 
     @Override
     public String createSession(String userId, String email, long expirationInMinutes) {
@@ -67,14 +64,14 @@ public class JjwtSessionGeneratorService extends SessionGeneratorService {
 
             logPayload.put("jwtSessionToken", jwt);
 
-            LOG.info("JWT Generated!", logPayload);
+            log.info("JWT Generated!", logPayload);
 
             return jwt;
         } catch (WeakKeyException e) {
-            LOG.error("An error has occured on generating session token", e, logPayload);
+            log.error("An error has occured on generating session token", e, logPayload);
             throw new CouldNotCreateSession(e.getMessage());
         } catch (DateTimeException e) {
-            LOG.error("An error has occured on getting date", e, logPayload);
+            log.error("An error has occured on getting date", e, logPayload);
             throw new CouldNotCreateSession(e.getMessage());
         }
     }

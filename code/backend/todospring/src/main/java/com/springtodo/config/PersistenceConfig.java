@@ -20,12 +20,11 @@ public class PersistenceConfig {
 
     @Bean
     public DataSource dataSource() {
-
-        LOG.info("Starting persistence", env.toString());
-
-        DriverManagerDataSource dataSource = new DriverManagerDataSource(env.getProperty("url"),
-                env.getProperty("user"), env.getProperty("password"));
-        dataSource.setDriverClassName(env.getProperty("driverClassName"));
+        final DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName(new String(env.getProperty("driverClassName")));
+        dataSource.setUrl(env.getProperty("url"));
+        dataSource.setUsername(env.getProperty("user"));
+        dataSource.setPassword(env.getProperty("password"));
         return dataSource;
     }
 }

@@ -23,7 +23,6 @@ public class AppConfig {
 
     @Bean
     public UserRepository userRepository() {
-        return new HibernateUserRepository(); // Supondo que você tenha uma implementação customizada
+        return new HibernateUserRepository();
     }
-
 }
