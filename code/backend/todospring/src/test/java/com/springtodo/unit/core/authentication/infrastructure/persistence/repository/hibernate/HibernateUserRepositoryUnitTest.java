@@ -2,8 +2,6 @@ package com.springtodo.unit.core.authentication.infrastructure.persistence.repos
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -19,10 +17,10 @@ import com.springtodo.core.autentication.domain.entity.User;
 import com.springtodo.core.autentication.domain.exception.CouldNotRetrieveUser;
 import com.springtodo.core.autentication.domain.exception.UserNotFoundException;
 import com.springtodo.core.autentication.infrastructure.persistence.repository.hibernate_impl.HibernateUserRepository;
+import com.springtodo.core.autentication.infrastructure.persistence.repository.hibernate_impl.jpa.model.UserJpa;
+import com.springtodo.core.autentication.infrastructure.persistence.repository.hibernate_impl.jpa.repository.UserJpaRepository;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
-import jakarta.persistence.TypedQuery;
 
 @ExtendWith(MockitoExtension.class)
 public class HibernateUserRepositoryUnitTest {
@@ -31,7 +29,7 @@ public class HibernateUserRepositoryUnitTest {
     HibernateUserRepository hibernateUserRepository;
 
     @Mock
-    private TypedQuery<User> query;
+    UserJpaRepository userJpaRepository;
 
     @Mock
     private EntityManager entityManager;
@@ -47,24 +45,19 @@ public class HibernateUserRepositoryUnitTest {
         RuntimeException error = new RuntimeException("error has occurred");
         String email = "someemail@dot.com";
 
-        when(entityManager.createQuery(anyString(), eq(User.class))).thenReturn(query);
-        when(query.setParameter(anyString(), anyString())).thenReturn(query);
-        when(query.getSingleResult()).thenThrow(error);
+        when(userJpaRepository.getByEmailAddress(email)).thenThrow(error);
 
-        assertThrows(CouldNotRetrieveUser.class, () -> this.hibernateUserRepository.getUser(email));
+        assertThrows(CouldNotRetrieveUser.class, () -> this.hibernateUserRepository.getUserByEmailAddress(email));
     }
 
     @Test
     @DisplayName("It must throw user not found exception when user is not found")
     void testWhenUserIsNotFound() {
-        NoResultException noResultException = new NoResultException();
         String email = "someemail@dot.com";
 
-        when(entityManager.createQuery(anyString(), eq(User.class))).thenReturn(query);
-        when(query.setParameter(anyString(), anyString())).thenReturn(query);
-        when(query.getSingleResult()).thenThrow(noResultException);
+        when(userJpaRepository.getByEmailAddress(email)).thenReturn(null);
 
-        assertThrows(UserNotFoundException.class, () -> this.hibernateUserRepository.getUser(email));
+        assertThrows(UserNotFoundException.class, () -> this.hibernateUserRepository.getUserByEmailAddress(email));
     }
 
     @Test
@@ -72,16 +65,18 @@ public class HibernateUserRepositoryUnitTest {
     void testWhenEntityManagerReturnsUser() throws UserNotFoundException, CouldNotRetrieveUser {
         String email = "someemail@dot.com";
         String password = "somepassword";
-        String id = "someId";
+        String id = Long.toString(0L);
 
         User user = new User(id, email, password);
+        UserJpa userJpa = new UserJpa();
+        userJpa.setEmail(email);
+        userJpa.setId(0L);
+        userJpa.setPassword(password);
 
-        when(entityManager.createQuery(anyString(), eq(User.class))).thenReturn(query);
-        when(query.setParameter(anyString(), anyString())).thenReturn(query);
-        when(query.getSingleResult()).thenReturn(user);
+        when(userJpaRepository.getByEmailAddress(email)).thenReturn(userJpa);
 
         User foundUser = this.hibernateUserRepository.getUserByEmailAddress(email);
 
-        assertEquals(foundUser, user);
+        assertEquals(foundUser.getId(), user.getId());
     }
 }

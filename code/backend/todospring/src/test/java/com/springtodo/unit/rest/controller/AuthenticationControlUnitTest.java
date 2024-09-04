@@ -12,16 +12,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.springtodo.core.autentication.application.usecase.authenticate.AuthenticateUseCase;
 import com.springtodo.core.autentication.domain.exception.CouldNotCreateSession;
 import com.springtodo.core.autentication.domain.exception.CouldNotRetrieveUser;
 import com.springtodo.core.autentication.domain.exception.InvalidPassword;
 import com.springtodo.core.autentication.domain.exception.UserNotFoundException;
-import com.springtodo.rest.controller.AutenticationControl;
-import com.springtodo.rest.model.AuthenticationInputJson;
+import com.springtodo.rest.control.AutenticationControl;
+import com.springtodo.rest.pojo.AuthenticationInputJson;
 
 @ExtendWith(MockitoExtension.class)
 public class AuthenticationControlUnitTest {
@@ -38,70 +36,62 @@ public class AuthenticationControlUnitTest {
     }
 
     @Test
-    @DisplayName("It should return an error ResponseStatusException with BAD_REQUEST when authenticateUseCase throws UserNotFoundException")
+    @DisplayName("It should throw UserNotFoundException when authenticateUseCase throws UserNotFoundException")
     void testWhenAuthenticateUseCaseThrowsUserNotFoundException()
             throws UserNotFoundException, CouldNotCreateSession, CouldNotRetrieveUser, InvalidPassword {
         UserNotFoundException userNotFoundException = new UserNotFoundException("Some user not found error");
-        ResponseStatusException responseStatusException = new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                userNotFoundException.getMessage());
 
         when(authenticateUseCase.execute(any())).thenThrow(userNotFoundException);
 
         try {
-            authenticationControl.login(new AuthenticationInputJson());
+            authenticationControl.login(new AuthenticationInputJson("", ""));
         } catch (Exception e) {
-            assertEquals(responseStatusException.getClass(), e.getClass());
+            assertEquals(userNotFoundException.getClass(), e.getClass());
         }
     }
 
     @Test
-    @DisplayName("It should return an error ResponseStatusException with BAD_REQUEST when authenticateUseCase throws InvalidPassword")
+    @DisplayName("It should throw InvalidPassword error when authenticateUseCase throws InvalidPassword")
     void testWhenAuthenticateUseCaseThrowsInvalidPassword()
             throws UserNotFoundException, CouldNotCreateSession, CouldNotRetrieveUser, InvalidPassword {
         InvalidPassword invalidPassword = new InvalidPassword("some invalid password error");
-        ResponseStatusException responseStatusException = new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                invalidPassword.getMessage());
 
         when(authenticateUseCase.execute(any())).thenThrow(invalidPassword);
 
         try {
-            authenticationControl.login(new AuthenticationInputJson());
+            authenticationControl.login(new AuthenticationInputJson("", ""));
         } catch (Exception e) {
-            assertEquals(responseStatusException.getClass(), e.getClass());
+            assertEquals(invalidPassword.getClass(), e.getClass());
         }
     }
 
     @Test
-    @DisplayName("It should return an error ResponseStatusException with INTERNAL_SERVER_ERROR when authenticateUseCase throws CouldNotRetrieveUser")
+    @DisplayName("It should throw CouldNotRetrieveUser when authenticateUseCase throws CouldNotRetrieveUser")
     void testWhenAuthenticateUseCaseThrowsCouldNotRetrieveUser()
             throws UserNotFoundException, CouldNotCreateSession, CouldNotRetrieveUser, InvalidPassword {
         CouldNotRetrieveUser couldNotRetrieveUser = new CouldNotRetrieveUser("could not retrieve user");
-        ResponseStatusException responseStatusException = new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                "Internal Server Error");
 
         when(authenticateUseCase.execute(any())).thenThrow(couldNotRetrieveUser);
 
         try {
-            authenticationControl.login(new AuthenticationInputJson());
+            authenticationControl.login(new AuthenticationInputJson("", ""));
         } catch (Exception e) {
-            assertEquals(responseStatusException.getClass(), e.getClass());
+            assertEquals(couldNotRetrieveUser.getClass(), e.getClass());
         }
     }
 
     @Test
-    @DisplayName("It should return an error ResponseStatusException with INTERNAL_SERVER_ERROR when authenticateUseCase throws CouldNotCreateSession")
+    @DisplayName("It should throw CouldNotCreateSession when authenticateUseCase throws CouldNotCreateSession")
     void testWhenAuthenticateUseCaseThrowsCouldNotCreateSession()
             throws UserNotFoundException, CouldNotCreateSession, CouldNotRetrieveUser, InvalidPassword {
         CouldNotCreateSession couldNotCreateSession = new CouldNotCreateSession("could not retrieve user");
-        ResponseStatusException responseStatusException = new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                "Internal Server Error");
 
         when(authenticateUseCase.execute(any())).thenThrow(couldNotCreateSession);
 
         try {
-            authenticationControl.login(new AuthenticationInputJson());
+            authenticationControl.login(new AuthenticationInputJson("", ""));
         } catch (Exception e) {
-            assertEquals(responseStatusException.getClass(), e.getClass());
+            assertEquals(couldNotCreateSession.getClass(), e.getClass());
         }
     }
 }

@@ -17,7 +17,7 @@ import jakarta.persistence.NoResultException;
 @Component
 public class HibernateUserRepository extends UserRepository {
 
-    private static final Logger LOG = LoggerFactory.getLogger(HibernateUserRepository.class);
+    private Logger log = LoggerFactory.getLogger(HibernateUserRepository.class);
 
     @Autowired
     private UserJpaRepository userJpaRepository;
@@ -33,10 +33,10 @@ public class HibernateUserRepository extends UserRepository {
 
             return new User(Long.toString(userJpa.getId()), userJpa.getEmail(), userJpa.getPassword());
         } catch (NoResultException e) {
-            LOG.error("User not found with email: " + email, e);
+            log.error("User not found with email: " + email, e);
             throw new UserNotFoundException("User not found with email: " + email);
         } catch (Exception e) {
-            LOG.error("An error has occurred on recovering user", e);
+            log.error("An error has occurred on recovering user", e);
             throw new CouldNotRetrieveUser(e.getMessage());
         }
     }

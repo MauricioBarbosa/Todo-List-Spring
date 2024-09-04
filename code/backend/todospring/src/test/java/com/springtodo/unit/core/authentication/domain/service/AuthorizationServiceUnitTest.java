@@ -44,7 +44,7 @@ public class AuthorizationServiceUnitTest {
     private Long sessionExpirationInSeconds = (long) 120;
 
     @Mock
-    private Logger mockedLogger;
+    private Logger logger;
 
     @BeforeEach
     void setUp() {
@@ -72,7 +72,7 @@ public class AuthorizationServiceUnitTest {
         logPayload.put("password", password);
         logPayload.put("email", email);
 
-        verify(mockedLogger).info("Recovering user", logPayload);
+        verify(logger).info("Recovering user", logPayload);
     }
 
     @Test
@@ -96,8 +96,8 @@ public class AuthorizationServiceUnitTest {
             this.authorizationService.startSession(email, password);
         });
 
-        verify(mockedLogger).info("Recovering user", logPayload);
-        verify(mockedLogger).error("Invalid password", logPayloadAfterUser);
+        verify(logger).info("Recovering user", logPayload);
+        verify(logger).error("Invalid password", logPayloadAfterUser);
     }
 
     @Test
@@ -127,8 +127,8 @@ public class AuthorizationServiceUnitTest {
         logPayloadAfterUser.put("email", email);
         logPayloadAfterUser.put("user", user.toString());
 
-        verify(this.mockedLogger).info("Recovering user", logPayload);
-        verify(this.mockedLogger).info("Generating session", logPayloadAfterUser);
+        verify(logger).info("Recovering user", logPayload);
+        verify(logger).info("Generating session", logPayloadAfterUser);
     }
 
     @Test
@@ -156,8 +156,8 @@ public class AuthorizationServiceUnitTest {
         String generatedSessionToken = this.authorizationService.startSession(email, password);
 
         assertEquals(generatedSessionToken, sessionToken);
-        verify(this.mockedLogger).info("Recovering user", logPayload);
-        verify(this.mockedLogger).info("Generating session", logPayloadAfterUser);
-        verify(this.mockedLogger).info("Returning session", logPayloadAfterUser);
+        verify(logger).info("Recovering user", logPayload);
+        verify(logger).info("Generating session", logPayloadAfterUser);
+        verify(logger).info("Returning session", logPayloadAfterUser);
     }
 }

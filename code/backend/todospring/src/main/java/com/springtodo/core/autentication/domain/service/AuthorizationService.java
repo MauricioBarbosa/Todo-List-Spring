@@ -23,7 +23,7 @@ public class AuthorizationService {
     @Autowired
     private UserRepository userRepository;
 
-    private Logger LOG = LoggerFactory.getLogger(AuthorizationService.class);
+    private Logger log = LoggerFactory.getLogger(AuthorizationService.class);
 
     @Value("${sessionExpirationInSeconds}")
     private Long sessionExpirationInSeconds;
@@ -35,7 +35,7 @@ public class AuthorizationService {
         logPayload.put("password", password);
         logPayload.put("email", email);
 
-        LOG.info("Recovering user", logPayload);
+        log.info("Recovering user", logPayload);
 
         User user = this.userRepository.getUserByEmailAddress(email);
 
@@ -43,19 +43,19 @@ public class AuthorizationService {
         logPayloadAfterUser.put("user", user.toString());
 
         if (!user.isThisUser(password)) {
-            LOG.error("Invalid password", logPayloadAfterUser);
+            log.error("Invalid password", logPayloadAfterUser);
 
             throw new InvalidPassword("Invalid password");
         }
 
-        this.LOG.info("Generating session", logPayloadAfterUser);
+        log.info("Generating session", logPayloadAfterUser);
 
         String sessionToken = this.sessionGeneratorService.createSession(user.getId(), user.getEmail(),
                 sessionExpirationInSeconds);
 
         System.out.println(user.toString());
 
-        this.LOG.info("Returning session", logPayloadAfterUser);
+        log.info("Returning session", logPayloadAfterUser);
 
         return sessionToken;
     }

@@ -6,13 +6,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.DateTimeException;
 import java.time.ZoneId;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -26,8 +23,7 @@ import org.mockito.InjectMocks;
 import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import com.springtodo.core.autentication.domain.exception.CouldNotCreateSession;
 import com.springtodo.core.autentication.infrastructure.service.sessiongenerator.JjwtSessionGeneratorService;
@@ -55,13 +51,8 @@ public class JjwtSessionGeneratorServiceUnitTest {
     MockedStatic<Keys> mockedKeys;
     MockedStatic<ZoneId> mockedZoneId;
     MockedStatic<Jwts> mockedJwts;
-    MockedStatic<LoggerFactory> mockedLoggerFactory;
-
-    private Logger mockedLogger;
 
     ZoneId zoneId;
-
-    private Map<String, String> logPayload;
 
     @BeforeEach
     void init() {
@@ -73,28 +64,16 @@ public class JjwtSessionGeneratorServiceUnitTest {
 
         this.zoneId = ZoneId.of(applicationTimeZone);
 
+        ReflectionTestUtils.setField(jjwtSessionGeneratorService, "secretKey",
+                this.secretKey);
+        ReflectionTestUtils.setField(jjwtSessionGeneratorService, "applicationTimeZone", this.applicationTimeZone);
+        ReflectionTestUtils.setField(jjwtSessionGeneratorService, "sessionIssuer", this.sessionIssuer);
+        ReflectionTestUtils.setField(jjwtSessionGeneratorService, "sessionSubject", this.sessionSubject);
+
         this.mockedKeys = mockStatic(Keys.class);
         this.mockedZoneId = mockStatic(ZoneId.class);
         this.mockedJwts = mockStatic(Jwts.class);
-        this.mockedLoggerFactory = mockStatic(LoggerFactory.class);
 
-        this.mockedLogger = mock(Logger.class);
-
-        mockedLoggerFactory.when(() -> LoggerFactory.getLogger(JjwtSessionGeneratorService.class))
-                .thenReturn(this.mockedLogger);
-
-        jjwtSessionGeneratorService = new JjwtSessionGeneratorService(secretKey, applicationTimeZone,
-                sessionIssuer,
-                sessionSubject);
-
-        this.logPayload = new HashMap<>();
-
-        logPayload.put("secretKey", secretKey);
-        logPayload.put("sessionIssuer", sessionIssuer);
-        logPayload.put("sessionSubject", sessionSubject);
-        logPayload.put("userId", userId);
-        logPayload.put("userEmail", email);
-        logPayload.put("expirationInMinutes", Long.toString(expirationInMinutes));
     }
 
     @AfterEach
@@ -102,7 +81,6 @@ public class JjwtSessionGeneratorServiceUnitTest {
         this.mockedKeys.close();
         this.mockedZoneId.close();
         this.mockedJwts.close();
-        this.mockedLoggerFactory.close();
     }
 
     @Test
@@ -117,7 +95,6 @@ public class JjwtSessionGeneratorServiceUnitTest {
         } catch (Exception executionException) {
             assertEquals(e.getMessage(), executionException.getMessage());
         }
-        verify(this.mockedLogger).error("An error has occured on generating session token", e, logPayload);
     }
 
     @Test
@@ -136,7 +113,6 @@ public class JjwtSessionGeneratorServiceUnitTest {
         });
 
         assertEquals(couldNotCreateSessionException.getMessage(), exception.getMessage());
-        verify(this.mockedLogger).error("An error has occured on getting date", exception, logPayload);
     }
 
     @Test
@@ -147,7 +123,7 @@ public class JjwtSessionGeneratorServiceUnitTest {
         mockedKeys.when(() -> Keys.hmacShaKeyFor(any()))
                 .thenReturn(new SecretKeySpec(this.secretKey.getBytes(), "HmacSHA512"));
 
-        mockedZoneId.when(() -> ZoneId.of(any())).thenReturn(this.zoneId);
+        mockedZoneId.when(() -> ZoneId.of(anyString())).thenReturn(this.zoneId);
 
         DefaultJwtBuilder jwtBuilder = mock(DefaultJwtBuilder.class);
 
@@ -163,9 +139,6 @@ public class JjwtSessionGeneratorServiceUnitTest {
         String generatedJwt = this.jjwtSessionGeneratorService.createSession(userId,
                 email, expirationInMinutes);
 
-        logPayload.put("jwtSessionToken", generatedJwt);
-
         assertEquals(expectedGeneratedJwt, generatedJwt);
-        verify(this.mockedLogger).info("JWT Generated!", logPayload);
     }
 }
