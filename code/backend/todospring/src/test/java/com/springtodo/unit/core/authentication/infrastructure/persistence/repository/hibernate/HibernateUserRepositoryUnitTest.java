@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
+import java.util.UUID;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -63,20 +65,22 @@ public class HibernateUserRepositoryUnitTest {
     @Test
     @DisplayName("It must return an user")
     void testWhenEntityManagerReturnsUser() throws UserNotFoundException, CouldNotRetrieveUser {
+        UUID id = UUID.randomUUID();
+
         String email = "someemail@dot.com";
         String password = "somepassword";
-        String id = Long.toString(0L);
+        String userId = id.toString();
 
-        User user = new User(id, email, password);
+        User user = new User(userId, email, password);
         UserJpa userJpa = new UserJpa();
         userJpa.setEmail(email);
-        userJpa.setId(0L);
+        userJpa.setId(id);
         userJpa.setPassword(password);
 
         when(userJpaRepository.getByEmailAddress(email)).thenReturn(userJpa);
 
         User foundUser = this.hibernateUserRepository.getUserByEmailAddress(email);
 
-        assertEquals(foundUser.getId(), user.getId());
+        assertEquals(foundUser.getId().toString(), user.getId());
     }
 }

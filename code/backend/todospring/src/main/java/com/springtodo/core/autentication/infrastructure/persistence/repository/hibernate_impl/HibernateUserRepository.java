@@ -31,7 +31,7 @@ public class HibernateUserRepository extends UserRepository {
                 throw new NoResultException("User not found");
             }
 
-            return new User(Long.toString(userJpa.getId()), userJpa.getEmail(), userJpa.getPassword());
+            return new User(userJpa.getId().toString(), userJpa.getEmail(), userJpa.getPassword());
         } catch (NoResultException e) {
             log.error("User not found with email: " + email, e);
             throw new UserNotFoundException("User not found with email: " + email);

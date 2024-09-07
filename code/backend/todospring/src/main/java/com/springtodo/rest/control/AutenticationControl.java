@@ -1,6 +1,8 @@
 package com.springtodo.rest.control;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,13 +25,13 @@ public class AutenticationControl {
     private AuthenticateUseCase authenticationUseCase;
 
     @PostMapping("/login")
-    public String login(@Valid @RequestBody AuthenticationInputJson authenticationInputJson)
+    public ResponseEntity<OutputDTO> login(@Valid @RequestBody AuthenticationInputJson authenticationInputJson)
             throws UserNotFoundException, CouldNotCreateSession, CouldNotRetrieveUser, InvalidPassword {
 
         OutputDTO result = authenticationUseCase
                 .execute(new InputDTO(authenticationInputJson.getEmail(), authenticationInputJson.getPassword()));
 
-        return result.getToken();
+        return ResponseEntity.status(HttpStatus.OK).body(result);
 
     }
 }
