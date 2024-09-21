@@ -1,0 +1,9 @@
+{
+    "java.compile.nullAnalysis.mode": "automatic",
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "editor.fontSize": 11,
+    "debug.console.fontSize": 1,
+    "scm.inputFontSize": 10,
+    "terminal.integrated.fontSize": 12,
+    "chat.editor.fontSize": 12
+}
