@@ -1,10 +1,10 @@
-package com.springtodo.core.autentication.application.usecase.authenticate;
+package com.springtodo.core.autentication.application.usecase.authentication;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.springtodo.core.autentication.application.usecase.authenticate.dto.InputDTO;
-import com.springtodo.core.autentication.application.usecase.authenticate.dto.OutputDTO;
+import com.springtodo.core.autentication.application.usecase.authentication.dto.InputDTO;
+import com.springtodo.core.autentication.application.usecase.authentication.dto.OutputDTO;
 import com.springtodo.core.autentication.domain.exception.CouldNotCreateSession;
 import com.springtodo.core.autentication.domain.exception.CouldNotRetrieveUser;
 import com.springtodo.core.autentication.domain.exception.InvalidPassword;

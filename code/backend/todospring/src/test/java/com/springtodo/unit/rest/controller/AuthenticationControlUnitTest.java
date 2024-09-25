@@ -13,7 +13,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.springtodo.core.autentication.application.usecase.authenticate.AuthenticateUseCase;
+import com.springtodo.core.autentication.application.usecase.authentication.AuthenticateUseCase;
 import com.springtodo.core.autentication.domain.exception.CouldNotCreateSession;
 import com.springtodo.core.autentication.domain.exception.CouldNotRetrieveUser;
 import com.springtodo.core.autentication.domain.exception.InvalidPassword;

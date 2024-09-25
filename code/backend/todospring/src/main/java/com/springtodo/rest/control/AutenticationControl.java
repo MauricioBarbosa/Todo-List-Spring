@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.springtodo.core.autentication.application.usecase.authenticate.AuthenticateUseCase;
-import com.springtodo.core.autentication.application.usecase.authenticate.dto.InputDTO;
-import com.springtodo.core.autentication.application.usecase.authenticate.dto.OutputDTO;
+import com.springtodo.core.autentication.application.usecase.authentication.AuthenticateUseCase;
+import com.springtodo.core.autentication.application.usecase.authentication.dto.InputDTO;
+import com.springtodo.core.autentication.application.usecase.authentication.dto.OutputDTO;
 import com.springtodo.core.autentication.domain.exception.CouldNotCreateSession;
 import com.springtodo.core.autentication.domain.exception.CouldNotRetrieveUser;
 import com.springtodo.core.autentication.domain.exception.InvalidPassword;

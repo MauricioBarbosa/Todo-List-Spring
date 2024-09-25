@@ -1,4 +1,4 @@
-package com.springtodo.core.autentication.application.usecase.authenticate.dto;
+package com.springtodo.core.autentication.application.usecase.authentication.dto;
 
 import lombok.Getter;
 

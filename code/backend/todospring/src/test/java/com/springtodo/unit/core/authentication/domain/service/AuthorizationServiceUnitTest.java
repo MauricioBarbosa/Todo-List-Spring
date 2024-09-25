@@ -2,6 +2,7 @@ package com.springtodo.unit.core.authentication.domain.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
@@ -108,7 +109,8 @@ public class AuthorizationServiceUnitTest {
         User user = new User("#someId", "someEmail", "somePassword");
 
         when(userRepositoryMock.getUserByEmailAddress(anyString())).thenReturn(user);
-        when(sessionGeneratorServiceMock.createSession(anyString(), anyString(), anyLong()))
+        when(sessionGeneratorServiceMock.createSession(anyString(), anyString(), anyLong(),
+                any()))
                 .thenThrow(couldNotCreateSession);
 
         try {
@@ -150,7 +152,7 @@ public class AuthorizationServiceUnitTest {
         logPayloadAfterUser.put("user", user.toString());
 
         when(userRepositoryMock.getUserByEmailAddress(anyString())).thenReturn(user);
-        when(sessionGeneratorServiceMock.createSession(anyString(), anyString(), anyLong()))
+        when(sessionGeneratorServiceMock.createSession(anyString(), anyString(), anyLong(), any()))
                 .thenReturn(sessionToken);
 
         String generatedSessionToken = this.authorizationService.startSession(email, password);

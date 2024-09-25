@@ -3,6 +3,7 @@ package com.springtodo.core.autentication.domain.entity;
 import com.springtodo.core.autentication.domain.exception.EmailNotInformed;
 import com.springtodo.core.autentication.domain.exception.IdNotInformed;
 import com.springtodo.core.autentication.domain.exception.PasswordNotInformed;
+import com.springtodo.core.autentication.domain.value_object.ConfirmationCode;
 
 import lombok.Getter;
 
@@ -11,6 +12,7 @@ public class User {
     private String id;
     private String email;
     private String password;
+    private ConfirmationCode confirmationCode;
 
     public User(String id, String email, String password) throws EmailNotInformed, PasswordNotInformed, IdNotInformed {
         if (id == null) {

@@ -12,6 +12,7 @@ import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.springtodo.core.autentication.domain.enums.AuthenticationStates;
 import com.springtodo.core.autentication.domain.exception.CouldNotCreateSession;
 import com.springtodo.core.autentication.domain.service.SessionGeneratorService;
 
@@ -37,7 +38,8 @@ public class JjwtSessionGeneratorService extends SessionGeneratorService {
     private String sessionSubject;
 
     @Override
-    public String createSession(String userId, String email, long expirationInMinutes) {
+    public String createSession(String userId, String email, long expirationInMinutes,
+            AuthenticationStates authenticationState) {
         Map<String, String> logPayload = new HashMap<>();
 
         try {
@@ -60,6 +62,9 @@ public class JjwtSessionGeneratorService extends SessionGeneratorService {
             String jwt = Jwts.builder().issuer(this.sessionIssuer).subject(this.sessionSubject).issuedAt(currentDate)
                     .expiration(expirationDate)
                     .signWith(key)
+                    .claim("userEmail", email)
+                    .claim("userId", userId)
+                    .claim("state", authenticationState)
                     .compact();
 
             logPayload.put("jwtSessionToken", jwt);

@@ -10,9 +10,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.springtodo.core.autentication.application.usecase.authenticate.AuthenticateUseCase;
-import com.springtodo.core.autentication.application.usecase.authenticate.dto.InputDTO;
-import com.springtodo.core.autentication.application.usecase.authenticate.dto.OutputDTO;
+import com.springtodo.core.autentication.application.usecase.authentication.AuthenticateUseCase;
+import com.springtodo.core.autentication.application.usecase.authentication.dto.InputDTO;
+import com.springtodo.core.autentication.application.usecase.authentication.dto.OutputDTO;
 import com.springtodo.core.autentication.domain.exception.CouldNotCreateSession;
 import com.springtodo.core.autentication.domain.exception.CouldNotRetrieveUser;
 import com.springtodo.core.autentication.domain.exception.InvalidPassword;

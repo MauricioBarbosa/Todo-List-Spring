@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.springtodo.core.autentication.domain.entity.User;
+import com.springtodo.core.autentication.domain.enums.AuthenticationStates;
 import com.springtodo.core.autentication.domain.exception.CouldNotCreateSession;
 import com.springtodo.core.autentication.domain.exception.CouldNotRetrieveUser;
 import com.springtodo.core.autentication.domain.exception.InvalidPassword;
@@ -17,13 +18,13 @@ import com.springtodo.core.autentication.domain.exception.UserNotFoundException;
 import com.springtodo.core.autentication.domain.repository.UserRepository;
 
 @Service
-public class AuthorizationService {
+public class AuthenticationService {
     @Autowired
     private SessionGeneratorService sessionGeneratorService;
     @Autowired
     private UserRepository userRepository;
 
-    private Logger log = LoggerFactory.getLogger(AuthorizationService.class);
+    private Logger log = LoggerFactory.getLogger(AuthenticationService.class);
 
     @Value("${sessionExpirationInSeconds}")
     private Long sessionExpirationInSeconds;
@@ -51,7 +52,7 @@ public class AuthorizationService {
         log.info("Generating session", logPayloadAfterUser);
 
         String sessionToken = this.sessionGeneratorService.createSession(user.getId(), user.getEmail(),
-                sessionExpirationInSeconds);
+                sessionExpirationInSeconds, AuthenticationStates.CONFIRMATION_PENDING);
 
         System.out.println(user.toString());
 

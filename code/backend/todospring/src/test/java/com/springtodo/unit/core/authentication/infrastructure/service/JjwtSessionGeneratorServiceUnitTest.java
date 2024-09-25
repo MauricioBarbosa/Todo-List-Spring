@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.DateTimeException;
 import java.time.ZoneId;
+import java.util.Random;
 import java.util.UUID;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -25,6 +26,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import com.springtodo.core.autentication.domain.enums.AuthenticationStates;
 import com.springtodo.core.autentication.domain.exception.CouldNotCreateSession;
 import com.springtodo.core.autentication.infrastructure.service.sessiongenerator.JjwtSessionGeneratorService;
 
@@ -47,6 +49,7 @@ public class JjwtSessionGeneratorServiceUnitTest {
     private String userId;
     private String email;
     private long expirationInMinutes;
+    private AuthenticationStates authenticationState;
 
     MockedStatic<Keys> mockedKeys;
     MockedStatic<ZoneId> mockedZoneId;
@@ -73,7 +76,8 @@ public class JjwtSessionGeneratorServiceUnitTest {
         this.mockedKeys = mockStatic(Keys.class);
         this.mockedZoneId = mockStatic(ZoneId.class);
         this.mockedJwts = mockStatic(Jwts.class);
-
+        this.authenticationState = AuthenticationStates.values()[new Random()
+                .nextInt(AuthenticationStates.values().length)];
     }
 
     @AfterEach
@@ -91,7 +95,7 @@ public class JjwtSessionGeneratorServiceUnitTest {
         mockedKeys.when(() -> Keys.hmacShaKeyFor(any())).thenThrow(e);
 
         try {
-            jjwtSessionGeneratorService.createSession(userId, email, expirationInMinutes);
+            jjwtSessionGeneratorService.createSession(userId, email, expirationInMinutes, authenticationState);
         } catch (Exception executionException) {
             assertEquals(e.getMessage(), executionException.getMessage());
         }
@@ -109,7 +113,7 @@ public class JjwtSessionGeneratorServiceUnitTest {
 
         CouldNotCreateSession couldNotCreateSessionException = assertThrows(CouldNotCreateSession.class, () -> {
             jjwtSessionGeneratorService.createSession(userId, email,
-                    expirationInMinutes);
+                    expirationInMinutes, authenticationState);
         });
 
         assertEquals(couldNotCreateSessionException.getMessage(), exception.getMessage());
@@ -132,12 +136,13 @@ public class JjwtSessionGeneratorServiceUnitTest {
         when(jwtBuilder.issuedAt(any())).thenReturn(jwtBuilder);
         when(jwtBuilder.expiration(any())).thenReturn(jwtBuilder);
         when(jwtBuilder.signWith(any())).thenReturn(jwtBuilder);
+        when(jwtBuilder.claim(any(), any())).thenReturn(jwtBuilder);
         when(jwtBuilder.compact()).thenReturn(expectedGeneratedJwt);
 
         mockedJwts.when(() -> Jwts.builder()).thenReturn(jwtBuilder);
 
         String generatedJwt = this.jjwtSessionGeneratorService.createSession(userId,
-                email, expirationInMinutes);
+                email, expirationInMinutes, authenticationState);
 
         assertEquals(expectedGeneratedJwt, generatedJwt);
     }
