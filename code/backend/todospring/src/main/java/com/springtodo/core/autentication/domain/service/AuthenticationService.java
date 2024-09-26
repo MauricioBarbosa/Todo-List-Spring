@@ -20,7 +20,7 @@ import com.springtodo.core.autentication.domain.repository.UserRepository;
 @Service
 public class AuthenticationService {
     @Autowired
-    private SessionGeneratorService sessionGeneratorService;
+    private SessionTokenGeneratorService sessionGeneratorService;
     @Autowired
     private UserRepository userRepository;
 
@@ -28,6 +28,28 @@ public class AuthenticationService {
 
     @Value("${sessionExpirationInSeconds}")
     private Long sessionExpirationInSeconds;
+
+    public User authenticateUser(String email, String password)
+            throws InvalidPassword, UserNotFoundException, CouldNotRetrieveUser {
+        Map<String, String> logPayload = new HashMap<>();
+        logPayload.put("password", password);
+        logPayload.put("email", email);
+
+        log.info("Recovering user", logPayload);
+
+        User user = this.userRepository.getUserByEmailAddress(email);
+
+        Map<String, String> logPayloadAfterUser = new HashMap<>(logPayload);
+        logPayloadAfterUser.put("user", user.toString());
+
+        if (!user.isThisUser(password)) {
+            log.error("Invalid password", logPayloadAfterUser);
+
+            throw new InvalidPassword("Invalid password");
+        }
+
+        return user;
+    }
 
     public String startSession(String email, String password)
             throws CouldNotRetrieveUser, UserNotFoundException, InvalidPassword, CouldNotCreateSession {
@@ -51,7 +73,7 @@ public class AuthenticationService {
 
         log.info("Generating session", logPayloadAfterUser);
 
-        String sessionToken = this.sessionGeneratorService.createSession(user.getId(), user.getEmail(),
+        String sessionToken = this.sessionGeneratorService.createSession(user.getUserId(), user.getEmail(),
                 sessionExpirationInSeconds, AuthenticationStates.CONFIRMATION_PENDING);
 
         System.out.println(user.toString());

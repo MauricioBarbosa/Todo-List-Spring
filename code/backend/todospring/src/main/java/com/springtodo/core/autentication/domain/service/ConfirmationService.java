@@ -9,6 +9,8 @@ public class ConfirmationService {
     }
 
     public void sendConfirmationCode(ConfirmationCodeChannels channel) {
-
+        /**
+         * 1 - Gerar o codigo de confirmação
+         */
     }
 }

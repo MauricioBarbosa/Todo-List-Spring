@@ -1,16 +1,19 @@
 package com.springtodo.core.autentication.domain.value_object;
 
-import lombok.Getter;
-
-@Getter;
 public class ConfirmationCode {
     private String code;
+    private UserId userId;
 
-    ConfirmationCode(String code) {
+    ConfirmationCode(String code, UserId userId) {
         this.code = code;
+        this.userId = userId;
     }
 
-    public boolean equals(String inputCode) {
-        return inputCode == this.code;
+    public boolean equals(ConfirmationCode aConfirmationCode) {
+        return this.generateId() == aConfirmationCode.generateId();
+    }
+
+    public String generateId() {
+        return userId.getId() + ':' + this.code;
     }
 }

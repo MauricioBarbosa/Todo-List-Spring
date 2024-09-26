@@ -9,13 +9,13 @@ import com.springtodo.core.autentication.domain.exception.CouldNotCreateSession;
 import com.springtodo.core.autentication.domain.exception.CouldNotRetrieveUser;
 import com.springtodo.core.autentication.domain.exception.InvalidPassword;
 import com.springtodo.core.autentication.domain.exception.UserNotFoundException;
-import com.springtodo.core.autentication.domain.service.AuthorizationService;
+import com.springtodo.core.autentication.domain.service.AuthenticationService;
 
 @Service
 public class AuthenticateUseCase {
 
     @Autowired
-    private AuthorizationService authorizationService;
+    private AuthenticationService authorizationService;
 
     public OutputDTO execute(InputDTO inputDto)
             throws UserNotFoundException, CouldNotCreateSession, CouldNotRetrieveUser, InvalidPassword {

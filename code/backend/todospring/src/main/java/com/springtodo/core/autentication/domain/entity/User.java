@@ -4,12 +4,13 @@ import com.springtodo.core.autentication.domain.exception.EmailNotInformed;
 import com.springtodo.core.autentication.domain.exception.IdNotInformed;
 import com.springtodo.core.autentication.domain.exception.PasswordNotInformed;
 import com.springtodo.core.autentication.domain.value_object.ConfirmationCode;
+import com.springtodo.core.autentication.domain.value_object.UserId;
 
 import lombok.Getter;
 
 @Getter
 public class User {
-    private String id;
+    private UserId userId;
     private String email;
     private String password;
     private ConfirmationCode confirmationCode;
@@ -27,7 +28,7 @@ public class User {
             throw new PasswordNotInformed("Password was not informed");
         }
 
-        this.id = id;
+        this.userId = new UserId(id);
         this.email = email;
         this.password = password;
     }
@@ -42,9 +43,13 @@ public class User {
     @Override
     public String toString() {
         return "User{" +
-                "id='" + id + '\'' +
+                "id='" + this.userId.toString() + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 '}';
+    }
+
+    public String getUserId() {
+        return this.userId.getId();
     }
 }
