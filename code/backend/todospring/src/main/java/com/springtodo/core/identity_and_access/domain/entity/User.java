@@ -17,15 +17,15 @@ public class User {
 
     public User(UserId anId, UserEmail anEmail, UserPassword aPassword)
         throws EmailNotInformed, PasswordNotInformed, IdNotInformed {
-        if (id == null) {
+        if (anId == null) {
             throw new IdNotInformed("Id was not informed");
         }
 
-        if (email == null) {
+        if (anEmail == null) {
             throw new EmailNotInformed("Email was not informed");
         }
 
-        if (password == null) {
+        if (aPassword == null) {
             throw new PasswordNotInformed("Password was not informed");
         }
 
@@ -35,14 +35,6 @@ public class User {
     }
 
     public boolean passwordEquals(UserPassword aPassword) {
-        /**
-        1 - verify is password equals
-        1.1 - password not equals
-        1.1.1 - return false
-        1.2 - password equals
-        1.2.1 - return true
-        */
-
-        throw new RuntimeException("Not implemented yet");
+        return password.equals(aPassword);
     }
 }
