@@ -1,6 +1,7 @@
-package com.springtodo.core.autentication.domain.value_object;
+package com.springtodo.core.identity_and_access.domain.value_object;
 
 public class ConfirmationCode {
+
     private String code;
     private UserId userId;
 
