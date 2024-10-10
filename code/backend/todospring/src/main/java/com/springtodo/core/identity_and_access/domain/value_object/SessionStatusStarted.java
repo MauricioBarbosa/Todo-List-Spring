@@ -8,6 +8,6 @@ public class SessionStatusStarted extends SessionStatus {
 
     @Override
     public String toString() {
-        return "SessionStatus = { CONFIRMATED }";
+        return "{ SessionStatus = STARTED }";
     }
 }

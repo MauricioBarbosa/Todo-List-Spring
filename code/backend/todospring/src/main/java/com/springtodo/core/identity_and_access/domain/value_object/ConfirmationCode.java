@@ -1,20 +1,30 @@
 package com.springtodo.core.identity_and_access.domain.value_object;
 
+import java.util.UUID;
+import lombok.Getter;
+
+@Getter
 public class ConfirmationCode {
 
     private String code;
-    private UserId userId;
 
-    ConfirmationCode(String code, UserId userId) {
+    public ConfirmationCode(String code) {
         this.code = code;
-        this.userId = userId;
+    }
+
+    public ConfirmationCode(int codeSize) {
+        this.generateCode(codeSize);
     }
 
     public boolean equals(ConfirmationCode aConfirmationCode) {
-        return this.generateId() == aConfirmationCode.generateId();
+        return this.code == aConfirmationCode.getCode();
     }
 
-    public String generateId() {
-        return userId.getId() + ':' + this.code;
+    private void generateCode(int codeSize) {
+        this.code = UUID.randomUUID()
+            .toString()
+            .replace("-", "")
+            .toUpperCase()
+            .substring(0, codeSize);
     }
 }
