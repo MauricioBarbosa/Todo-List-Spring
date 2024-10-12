@@ -27,4 +27,9 @@ public class ConfirmationCode {
             .toUpperCase()
             .substring(0, codeSize);
     }
+
+    @Override
+    public String toString() {
+        return "ConfirmationCode{" + "code='" + this.code + '\'' + '}';
+    }
 }

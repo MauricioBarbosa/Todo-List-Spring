@@ -35,6 +35,6 @@ public class User {
     }
 
     public boolean passwordEquals(UserPassword aPassword) {
-        return password.equals(aPassword);
+        return this.password.equals(aPassword);
     }
 }
