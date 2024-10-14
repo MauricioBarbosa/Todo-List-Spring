@@ -43,6 +43,8 @@ public class SessionService {
         User user = this.userRepository.getUserByEmail(anUserEmail);
 
         if (!user.passwordEquals(anUserPassword)) {
+            log.error("Invalid passwords! {}, ", anUserPassword, anUserEmail);
+            
             throw new InvalidPassword("user password doesn't match");
         }
 
