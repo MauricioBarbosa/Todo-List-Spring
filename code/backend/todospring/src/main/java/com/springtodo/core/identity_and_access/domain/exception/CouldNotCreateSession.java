@@ -1,6 +1,7 @@
-package com.springtodo.core.autentication.domain.exception;
+package com.springtodo.core.identity_and_access.domain.exception;
 
-public class CouldNotCreateSession extends IllegalArgumentException {
+public class CouldNotCreateSession extends Error {
+
     public CouldNotCreateSession(String errorMessage) {
         super(errorMessage);
     }

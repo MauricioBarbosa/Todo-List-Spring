@@ -15,6 +15,7 @@ import io.jsonwebtoken.impl.DefaultJwtBuilder;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.WeakKeyException;
 import java.time.DateTimeException;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.UUID;
 import javax.crypto.spec.SecretKeySpec;
@@ -36,6 +37,8 @@ public class JjwtSessionTokenGeneratorUtilUnitTest {
     private String applicationTimeZone = "America/Sao_Paulo";
     private String sessionIssuer = "todoApp";
     private String sessionSubject = "String";
+    private LocalDateTime start;
+    private LocalDateTime end;
 
     private String sessionId;
 
@@ -49,9 +52,9 @@ public class JjwtSessionTokenGeneratorUtilUnitTest {
     void init() {
         MockitoAnnotations.openMocks(this);
 
-        this.sessionId = UUID.randomUUID().toString();
+        this.zoneId = ZoneId.of(this.applicationTimeZone, ZoneId.SHORT_IDS);
 
-        this.zoneId = ZoneId.of(applicationTimeZone);
+        this.sessionId = UUID.randomUUID().toString();
 
         ReflectionTestUtils.setField(
             jjwtSessionGeneratorUtil,
@@ -77,6 +80,9 @@ public class JjwtSessionTokenGeneratorUtilUnitTest {
         this.mockedKeys = mockStatic(Keys.class);
         this.mockedZoneId = mockStatic(ZoneId.class);
         this.mockedJwts = mockStatic(Jwts.class);
+
+        this.start = LocalDateTime.now();
+        this.end = LocalDateTime.now().plusSeconds(120);
     }
 
     @AfterEach
@@ -94,7 +100,7 @@ public class JjwtSessionTokenGeneratorUtilUnitTest {
         mockedKeys.when(() -> Keys.hmacShaKeyFor(any())).thenThrow(e);
 
         try {
-            jjwtSessionGeneratorUtil.generate(sessionId);
+            jjwtSessionGeneratorUtil.generate(sessionId, start, end);
         } catch (Exception executionException) {
             assertEquals(e.getMessage(), executionException.getMessage());
             assertEquals(
@@ -117,12 +123,14 @@ public class JjwtSessionTokenGeneratorUtilUnitTest {
                 new SecretKeySpec(this.secretKey.getBytes(), "HmacSHA512")
             );
 
-        mockedZoneId.when(() -> ZoneId.of(any())).thenThrow(exception);
+        mockedZoneId
+            .when(() -> ZoneId.of(this.applicationTimeZone))
+            .thenThrow(exception);
 
         CouldNotGenerateToken couldNotGenerateTokenException = assertThrows(
             CouldNotGenerateToken.class,
             () -> {
-                jjwtSessionGeneratorUtil.generate(sessionId);
+                jjwtSessionGeneratorUtil.generate(sessionId, start, end);
             }
         );
 
@@ -143,7 +151,15 @@ public class JjwtSessionTokenGeneratorUtilUnitTest {
                 new SecretKeySpec(this.secretKey.getBytes(), "HmacSHA512")
             );
 
-        mockedZoneId.when(() -> ZoneId.of(anyString())).thenReturn(this.zoneId);
+        mockedKeys
+            .when(() -> Keys.hmacShaKeyFor(any()))
+            .thenReturn(
+                new SecretKeySpec(this.secretKey.getBytes(), "HmacSHA512")
+            );
+
+        mockedZoneId
+            .when(() -> ZoneId.of(this.applicationTimeZone))
+            .thenReturn(this.zoneId);
 
         DefaultJwtBuilder jwtBuilder = mock(DefaultJwtBuilder.class);
 
@@ -157,7 +173,11 @@ public class JjwtSessionTokenGeneratorUtilUnitTest {
 
         mockedJwts.when(() -> Jwts.builder()).thenReturn(jwtBuilder);
 
-        String generatedJwt = jjwtSessionGeneratorUtil.generate(sessionId);
+        String generatedJwt = jjwtSessionGeneratorUtil.generate(
+            sessionId,
+            start,
+            end
+        );
 
         assertEquals(expectedGeneratedJwt, generatedJwt);
     }
