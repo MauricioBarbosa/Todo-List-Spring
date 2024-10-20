@@ -1,8 +1,12 @@
 package com.springtodo.core.identity_and_access.domain.value_object;
 
 import com.springtodo.core.identity_and_access.domain.value_object.SessionDuration;
+
+import lombok.Getter;
+
 import java.time.LocalDateTime;
 
+@Getter
 public class SessionDuration {
 
     private LocalDateTime start;

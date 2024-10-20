@@ -30,9 +30,6 @@ public class JjwtSessionTokenGeneratorUtil extends SessionTokenGeneratorUtil {
     @Value("${jwtSessionSubject}")
     private String sessionSubject;
 
-    @Value("${sessionDurationInSeconds}")
-    private Long sessionDurationInSeconds;
-
     @Override
     public String generate(
         String sessionId,
@@ -40,7 +37,11 @@ public class JjwtSessionTokenGeneratorUtil extends SessionTokenGeneratorUtil {
         LocalDateTime end
     ) throws CouldNotGenerateToken {
         try {
+            log.info("recovering hmacShaKeyFor {}", secretKey);
+
             SecretKey key = Keys.hmacShaKeyFor(this.secretKey.getBytes());
+
+            log.info("generating date sessions for {}, {}", start, end);
 
             Date startDate = Date.from(
                 start.atZone(ZoneId.of(this.applicationTimeZone)).toInstant()
@@ -49,6 +50,8 @@ public class JjwtSessionTokenGeneratorUtil extends SessionTokenGeneratorUtil {
             Date endDate = Date.from(
                 end.atZone(ZoneId.of(this.applicationTimeZone)).toInstant()
             );
+
+            log.info("Generating jwt token og session id" + sessionId);
 
             String jwt = Jwts.builder()
                 .issuer(this.sessionIssuer)
@@ -59,27 +62,22 @@ public class JjwtSessionTokenGeneratorUtil extends SessionTokenGeneratorUtil {
                 .claim("sessionId", sessionId)
                 .compact();
 
-            log.info("jwt token generated! {}", jwt);
-
             return jwt;
         } catch (WeakKeyException e) {
             log.error(
-                "error on generating jwt token, error: {}, sessionId {}, start {}, end {}",
-                e,
+                "Could not generate session token for session id {}, error {}",
                 sessionId,
-                start,
-                end
+                e
             );
 
             throw new CouldNotGenerateToken(e.getMessage());
         } catch (DateTimeException e) {
             log.error(
-                "error on generating jwt token, error: {}, sessionId {}, start {}, end {}",
-                e,
+                "Could not generate session token for session id {}, error {}",
                 sessionId,
-                start,
-                end
+                e
             );
+
             throw new CouldNotGenerateToken(e.getMessage());
         }
     }
