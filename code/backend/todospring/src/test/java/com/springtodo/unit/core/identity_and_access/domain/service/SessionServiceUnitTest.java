@@ -2,6 +2,7 @@ package com.springtodo.unit.core.identity_and_access.domain.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -20,16 +21,24 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.springtodo.core.identity_and_access.domain.entity.Session;
 import com.springtodo.core.identity_and_access.domain.entity.User;
+import com.springtodo.core.identity_and_access.domain.exception.ConfirmationCodeIsNotEqualToSessionConfirmationCode;
+import com.springtodo.core.identity_and_access.domain.exception.CouldNotFindSession;
 import com.springtodo.core.identity_and_access.domain.exception.CouldNotRetrieveUser;
 import com.springtodo.core.identity_and_access.domain.exception.CouldNotSaveSession;
 import com.springtodo.core.identity_and_access.domain.exception.InvalidPassword;
+import com.springtodo.core.identity_and_access.domain.exception.SessionNotFound;
 import com.springtodo.core.identity_and_access.domain.exception.UserNotFoundException;
 import com.springtodo.core.identity_and_access.domain.repository.SessionRepository;
 import com.springtodo.core.identity_and_access.domain.repository.UserRepository;
 import com.springtodo.core.identity_and_access.domain.service.SessionService;
+import com.springtodo.core.identity_and_access.domain.value_object.ConfirmationCode;
+import com.springtodo.core.identity_and_access.domain.value_object.SessionDuration;
+import com.springtodo.core.identity_and_access.domain.value_object.SessionId;
+import com.springtodo.core.identity_and_access.domain.value_object.SessionStatus;
 import com.springtodo.core.identity_and_access.domain.value_object.UserEmail;
 import com.springtodo.core.identity_and_access.domain.value_object.UserId;
 import com.springtodo.core.identity_and_access.domain.value_object.UserPassword;
+import com.springtodo.unit.core.identity_and_access.domain.builder.UserBuilder;
 
 @ExtendWith(MockitoExtension.class)
 public class SessionServiceUnitTest {
@@ -176,5 +185,101 @@ public class SessionServiceUnitTest {
         );
 
         assertEquals(session.getUserId(), this.user.getId());
+    }
+
+    @Test
+    @DisplayName("It should throw could not find session")
+    void shouldThrowCouldNotFindSession()
+        throws SessionNotFound, CouldNotFindSession {
+        CouldNotFindSession couldNotFindSession = new CouldNotFindSession(
+            "Something happened"
+        );
+
+        SessionId sessionId = new SessionId("#someSessionId");
+
+        ConfirmationCode confirmationCode = new ConfirmationCode("ASDXR");
+
+        when(sessionRepositoryMock.get(any(SessionId.class))).thenThrow(
+            couldNotFindSession
+        );
+
+        assertThrows(CouldNotFindSession.class, () -> {
+            sessionService.confirmSession(sessionId, confirmationCode);
+        });
+    }
+
+    @Test
+    @DisplayName("It should throw session not found")
+    void shouldThrowSessionNotFound()
+        throws SessionNotFound, CouldNotFindSession {
+        SessionId sessionId = new SessionId("#someSessionId");
+
+        SessionNotFound sessionNotFound = new SessionNotFound(sessionId);
+
+        ConfirmationCode confirmationCode = new ConfirmationCode("ASDXR");
+
+        when(sessionRepositoryMock.get(any(SessionId.class))).thenThrow(
+            sessionNotFound
+        );
+
+        assertThrows(SessionNotFound.class, () -> {
+            sessionService.confirmSession(sessionId, confirmationCode);
+        });
+    }
+
+    @Test
+    @DisplayName(
+        "It should throw confirmation code is not equal to session confirmation code"
+    )
+    void shouldThrowConfirmationCodeIsNotEqualToSessionConfirmationCode()
+        throws SessionNotFound, CouldNotFindSession {
+        SessionId sessionId = new SessionId("#someSessionId");
+
+        ConfirmationCode aConfirmationCode = new ConfirmationCode("ASDXR");
+        ConfirmationCode sessionConfirmationCode = new ConfirmationCode(6);
+
+        Session session = new Session(
+            sessionId,
+            new UserBuilder().build().getId(),
+            new SessionDuration(Long.valueOf(10)),
+            new SessionStatus(),
+            sessionConfirmationCode
+        );
+
+        when(sessionRepositoryMock.get(any(SessionId.class))).thenReturn(
+            session
+        );
+
+        assertThrows(
+            ConfirmationCodeIsNotEqualToSessionConfirmationCode.class,
+            () -> {
+                sessionService.confirmSession(sessionId, aConfirmationCode);
+            }
+        );
+    }
+
+    @Test
+    @DisplayName("it should confirmate the session")
+    void shouldConfirmateTheSession()
+        throws SessionNotFound, CouldNotFindSession {
+        SessionId sessionId = new SessionId("#someSessionId");
+
+        ConfirmationCode confirmationCode = new ConfirmationCode("ASDXR");
+
+        Session session = new Session(
+            sessionId,
+            new UserBuilder().build().getId(),
+            new SessionDuration(Long.valueOf(10)),
+            new SessionStatus(),
+            confirmationCode
+        );
+
+        when(sessionRepositoryMock.get(any(SessionId.class))).thenReturn(
+            session
+        );
+
+        sessionService.confirmSession(sessionId, confirmationCode);
+
+        assertTrue(session.isConfirmated());
     }
 }

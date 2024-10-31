@@ -2,9 +2,12 @@ package com.springtodo.core.identity_and_access.domain.service;
 
 import com.springtodo.core.identity_and_access.domain.entity.Session;
 import com.springtodo.core.identity_and_access.domain.entity.User;
+import com.springtodo.core.identity_and_access.domain.exception.ConfirmationCodeIsNotEqualToSessionConfirmationCode;
+import com.springtodo.core.identity_and_access.domain.exception.CouldNotFindSession;
 import com.springtodo.core.identity_and_access.domain.exception.CouldNotRetrieveUser;
 import com.springtodo.core.identity_and_access.domain.exception.CouldNotSaveSession;
 import com.springtodo.core.identity_and_access.domain.exception.InvalidPassword;
+import com.springtodo.core.identity_and_access.domain.exception.SessionNotFound;
 import com.springtodo.core.identity_and_access.domain.exception.UserNotFoundException;
 import com.springtodo.core.identity_and_access.domain.repository.SessionRepository;
 import com.springtodo.core.identity_and_access.domain.repository.UserRepository;
@@ -44,7 +47,7 @@ public class SessionService {
 
         if (!user.passwordEquals(anUserPassword)) {
             log.error("Invalid passwords! {}, ", anUserPassword, anUserEmail);
-            
+
             throw new InvalidPassword("user password doesn't match");
         }
 
@@ -62,8 +65,10 @@ public class SessionService {
     public void confirmSession(
         SessionId aSessionId,
         ConfirmationCode aConfirmationCode
-    ) {
-        String string = "Not implemented yet";
-        throw new RuntimeException(string);
+    )
+        throws SessionNotFound, CouldNotFindSession, ConfirmationCodeIsNotEqualToSessionConfirmationCode {
+        Session session = this.sessionRepository.get(aSessionId);
+
+        session.confirm(aConfirmationCode);
     }
 }

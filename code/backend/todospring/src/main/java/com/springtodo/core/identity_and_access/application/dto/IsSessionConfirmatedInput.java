@@ -5,13 +5,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ConfirmCodeInput {
+public class IsSessionConfirmatedInput {
 
-    private String confirmationCode;
     private String sessionToken;
 
-    public ConfirmCodeInput(String confirmationCode, String sessionToken) {
-        this.confirmationCode = confirmationCode;
+    public IsSessionConfirmatedInput(String sessionToken) {
         this.sessionToken = sessionToken;
     }
 }

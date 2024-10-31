@@ -2,10 +2,12 @@ package com.springtodo.unit.core.identity_and_access.domain.entity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.springtodo.core.identity_and_access.domain.entity.Session;
 import com.springtodo.core.identity_and_access.domain.entity.User;
+import com.springtodo.core.identity_and_access.domain.exception.ConfirmationCodeIsNotEqualToSessionConfirmationCode;
 import com.springtodo.core.identity_and_access.domain.value_object.ConfirmationCode;
 import com.springtodo.core.identity_and_access.domain.value_object.SessionDuration;
 import com.springtodo.core.identity_and_access.domain.value_object.SessionId;
@@ -104,7 +106,7 @@ public class SessionUnitTest {
             confirmationCodeSize
         );
 
-        assertFalse(session.isSessionConfirmated());
+        assertFalse(session.isConfirmated());
     }
 
     @Test
@@ -126,30 +128,69 @@ public class SessionUnitTest {
             confirmationCode
         );
 
-        assertTrue(session.isSessionConfirmated());
+        assertTrue(session.isConfirmated());
     }
 
     @Test
-    @DisplayName("It should confirm the session")
-    public void shouldConfirmTheSession() {
+    @DisplayName("It should not confirm the session")
+    public void shouldNotConfirmTheSession() {
         SessionId sessionId = new SessionId();
         UserId userId = new UserId();
         SessionDuration duration = new SessionDuration(
             sessionDurationInSeconds
         );
         SessionStatus status = new SessionStatusStarted();
-        ConfirmationCode confirmationCode = new ConfirmationCode("AXTS4");
+        ConfirmationCode sessionConfirmationCode = new ConfirmationCode(
+            "AXTS4"
+        );
+        ConfirmationCode informedConfirmationCode = new ConfirmationCode(
+            "AXTS5"
+        );
 
         Session session = new Session(
             sessionId,
             userId,
             duration,
             status,
+            sessionConfirmationCode
+        );
+
+        assertThrows(
+            ConfirmationCodeIsNotEqualToSessionConfirmationCode.class,
+            () -> {
+                session.confirm(informedConfirmationCode);
+            }
+        );
+    }
+
+    @Test
+    @DisplayName("It should confirm the session")
+    public void shouldConfirmTheSession() {
+        String confirmationCode = "AXTS4";
+
+        SessionId sessionId = new SessionId();
+        UserId userId = new UserId();
+        SessionDuration duration = new SessionDuration(
+            sessionDurationInSeconds
+        );
+        SessionStatus status = new SessionStatusStarted();
+        ConfirmationCode sessionConfirmationCode = new ConfirmationCode(
+            confirmationCode
+        );
+        ConfirmationCode informedConfirmationCode = new ConfirmationCode(
             confirmationCode
         );
 
-        session.confirmSession();
+        Session session = new Session(
+            sessionId,
+            userId,
+            duration,
+            status,
+            sessionConfirmationCode
+        );
 
-        assertTrue(session.isSessionConfirmated());
+        session.confirm(informedConfirmationCode);
+
+        assertTrue(session.isConfirmated());
     }
 }

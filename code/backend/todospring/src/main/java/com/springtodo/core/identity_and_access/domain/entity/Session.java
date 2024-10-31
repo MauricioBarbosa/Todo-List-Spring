@@ -1,5 +1,6 @@
 package com.springtodo.core.identity_and_access.domain.entity;
 
+import com.springtodo.core.identity_and_access.domain.exception.ConfirmationCodeIsNotEqualToSessionConfirmationCode;
 import com.springtodo.core.identity_and_access.domain.value_object.ConfirmationCode;
 import com.springtodo.core.identity_and_access.domain.value_object.SessionDuration;
 import com.springtodo.core.identity_and_access.domain.value_object.SessionId;
@@ -45,11 +46,18 @@ public class Session {
         this.sessionId = sessionId;
     }
 
-    public boolean isSessionConfirmated() {
+    public boolean isConfirmated() {
         return this.status.getClass() == SessionStatusConfirmated.class;
     }
 
-    public void confirmSession() {
+    public void confirm(ConfirmationCode aConfirmationCode)
+        throws ConfirmationCodeIsNotEqualToSessionConfirmationCode {
+        if (!this.confirmationCode.equals(aConfirmationCode)) {
+            throw new ConfirmationCodeIsNotEqualToSessionConfirmationCode(
+                aConfirmationCode.getCode()
+            );
+        }
+
         this.status = new SessionStatusConfirmated();
     }
 }
