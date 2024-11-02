@@ -1,7 +1,8 @@
-package com.springtodo.core.autentication.domain.exception;
+package com.springtodo.core.identity_and_access.domain.exception;
 
-public class CouldNotSendEmail extends Exception {
-    public CouldNotSendEmail(String errorMessage) {
-        super(errorMessage);
+public class CouldNotSendEmail extends Error {
+
+    public CouldNotSendEmail(String message) {
+        super(message);
     }
 }

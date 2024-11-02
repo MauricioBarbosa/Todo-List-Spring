@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -25,9 +26,11 @@ import com.springtodo.core.identity_and_access.domain.exception.ConfirmationCode
 import com.springtodo.core.identity_and_access.domain.exception.CouldNotFindSession;
 import com.springtodo.core.identity_and_access.domain.exception.CouldNotRetrieveUser;
 import com.springtodo.core.identity_and_access.domain.exception.CouldNotSaveSession;
+import com.springtodo.core.identity_and_access.domain.exception.CouldNotSendEmail;
 import com.springtodo.core.identity_and_access.domain.exception.InvalidPassword;
 import com.springtodo.core.identity_and_access.domain.exception.SessionNotFound;
 import com.springtodo.core.identity_and_access.domain.exception.UserNotFoundException;
+import com.springtodo.core.identity_and_access.domain.provider.EmailSenderProvider;
 import com.springtodo.core.identity_and_access.domain.repository.SessionRepository;
 import com.springtodo.core.identity_and_access.domain.repository.UserRepository;
 import com.springtodo.core.identity_and_access.domain.service.SessionService;
@@ -38,6 +41,7 @@ import com.springtodo.core.identity_and_access.domain.value_object.SessionStatus
 import com.springtodo.core.identity_and_access.domain.value_object.UserEmail;
 import com.springtodo.core.identity_and_access.domain.value_object.UserId;
 import com.springtodo.core.identity_and_access.domain.value_object.UserPassword;
+import com.springtodo.unit.core.identity_and_access.domain.builder.SessionBuilder;
 import com.springtodo.unit.core.identity_and_access.domain.builder.UserBuilder;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,6 +52,9 @@ public class SessionServiceUnitTest {
 
     @Mock
     private UserRepository userRepositoryMock;
+
+    @Mock
+    private EmailSenderProvider emailSenderProvider;
 
     @Mock
     private Logger logger;
@@ -281,5 +288,65 @@ public class SessionServiceUnitTest {
         sessionService.confirmSession(sessionId, confirmationCode);
 
         assertTrue(session.isConfirmated());
+    }
+
+    @Nested
+    @DisplayName("Testing SessionService.sendConfirmationCode")
+    class TestSendConfirmationCode {
+
+        @Test
+        @DisplayName("should throw CouldNotFindSession")
+        void shouldThrowCouldNotFindSession()
+            throws SessionNotFound, CouldNotFindSession {
+            SessionId sessionId = new SessionId("#someSessionId");
+
+            CouldNotFindSession couldNotFindSession = new CouldNotFindSession(
+                "Some error has occurred"
+            );
+
+            when(sessionRepositoryMock.get(any(SessionId.class))).thenThrow(
+                couldNotFindSession
+            );
+
+            assertThrows(CouldNotFindSession.class, () -> {
+                sessionService.sendConfirmationCode(sessionId);
+            });
+        }
+
+        @Test
+        @DisplayName("should throw SessionNotFound")
+        void shouldThrowSessionNotFound()
+            throws SessionNotFound, CouldNotFindSession {
+            SessionId sessionId = new SessionId("#someSessionId");
+
+            SessionNotFound sessionNotFound = new SessionNotFound(
+                sessionId
+            );
+
+            when(sessionRepositoryMock.get(any(SessionId.class))).thenThrow(
+                sessionNotFound
+            );
+
+            assertThrows(SessionNotFound.class, () -> {
+                sessionService.sendConfirmationCode(sessionId);
+            });
+        }
+
+        @Test
+        @DisplayName("should throw CouldNotSendEmail")
+        void shouldThrowCouldNotSendEmail()
+            throws SessionNotFound, CouldNotFindSession {
+            SessionId sessionId = new SessionId("#someSessionId");
+
+            CouldNotSendEmail couldNotSendEmail = new CouldNotSendEmail("something happened");
+
+            when(sessionRepositoryMock.get(any(SessionId.class))).thenReturn(new SessionBuilder().build());
+
+            doThrow(couldNotSendEmail).when(emailSenderProvider).sendConfirmationCode(any(ConfirmationCode.class), any(User.class));
+
+            assertThrows(CouldNotSendEmail.class, ()-> {
+                sessionService.sendConfirmationCode(sessionId);
+            });
+        }
     }
 }
