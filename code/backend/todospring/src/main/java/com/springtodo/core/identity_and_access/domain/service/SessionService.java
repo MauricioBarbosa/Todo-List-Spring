@@ -78,16 +78,15 @@ public class SessionService {
         session.confirm(aConfirmationCode);
     }
 
-    public void sendConfirmationCode(SessionId sessionId) {
-        /**
-        1 - Get session from repository
-        1.1 - Session Not Found
-        1.1.1 - throw SessionNotFound
-        1.2 - Could not Find Session
-        1.2.1 - throw CouldNotFindSession
-        2 - Send to user email
-        2.1 - Error on sending email
-        2.1.1. - Throw ErrorOnSendingEmail
-        */
+    public void sendConfirmationCode(SessionId sessionId)
+        throws SessionNotFound, CouldNotFindSession, UserNotFoundException, CouldNotRetrieveUser {
+        Session session = this.sessionRepository.get(sessionId);
+
+        User user = this.userRepository.getUserById(session.getUserId());
+
+        this.emailSenderProvider.sendConfirmationCode(
+            session.getConfirmationCode(),
+            user
+        );
     }
 }
