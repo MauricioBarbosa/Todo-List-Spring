@@ -2,6 +2,7 @@ package com.springtodo.unit.core.identity_and_access.domain.service;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,6 +31,8 @@ import com.springtodo.core.identity_and_access.domain.value_object.ConfirmationC
 import com.springtodo.core.identity_and_access.domain.value_object.SessionDuration;
 import com.springtodo.core.identity_and_access.domain.value_object.SessionId;
 import com.springtodo.core.identity_and_access.domain.value_object.SessionStatus;
+import com.springtodo.core.identity_and_access.domain.value_object.SessionStatusConfirmated;
+import com.springtodo.core.identity_and_access.domain.value_object.SessionStatusStarted;
 import com.springtodo.core.identity_and_access.domain.value_object.UserEmail;
 import com.springtodo.core.identity_and_access.domain.value_object.UserId;
 import com.springtodo.core.identity_and_access.domain.value_object.UserPassword;
@@ -431,6 +434,87 @@ public class SessionServiceUnitTest {
             assertAll(() -> {
                 sessionService.sendConfirmationCode(sessionId);
             });
+        }
+    }
+
+    @Nested
+    @DisplayName("Testing SessionService.isSessionConfirmed")
+    class TestIsSessionConfirmed {
+
+        @Test
+        void shouldThrowCouldNotFindSession()
+            throws SessionNotFound, CouldNotFindSession {
+            CouldNotFindSession couldNotFindSession = new CouldNotFindSession(
+                "Something happened"
+            );
+
+            SessionId sessionId = new SessionId("#someSessionId");
+
+            when(sessionRepositoryMock.get(any(SessionId.class))).thenThrow(
+                couldNotFindSession
+            );
+
+            assertThrows(CouldNotFindSession.class, () -> {
+                sessionService.isSessionConfirmed(sessionId);
+            });
+        }
+
+        @Test
+        void shouldThrowSessionNotFound()
+            throws SessionNotFound, CouldNotFindSession {
+            SessionId sessionId = new SessionId("#someSessionId");
+
+            SessionNotFound sessionNotFound = new SessionNotFound(sessionId);
+
+            when(sessionRepositoryMock.get(any(SessionId.class))).thenThrow(
+                sessionNotFound
+            );
+
+            assertThrows(SessionNotFound.class, () -> {
+                sessionService.isSessionConfirmed(sessionId);
+            });
+        }
+
+        @Test
+        void shouldReturnFalse() throws SessionNotFound, CouldNotFindSession {
+            SessionId sessionId = new SessionId("#someSessionId");
+
+            ConfirmationCode sessionConfirmationCode = new ConfirmationCode(6);
+
+            Session session = new Session(
+                sessionId,
+                new UserBuilder().build().getId(),
+                new SessionDuration(Long.valueOf(10)),
+                new SessionStatusStarted(),
+                sessionConfirmationCode
+            );
+
+            when(sessionRepositoryMock.get(any(SessionId.class))).thenReturn(
+                session
+            );
+
+            assertFalse(sessionService.isSessionConfirmed(sessionId));
+        }
+
+        @Test
+        void shouldReturnTrue() throws SessionNotFound, CouldNotFindSession {
+            SessionId sessionId = new SessionId("#someSessionId");
+
+            ConfirmationCode sessionConfirmationCode = new ConfirmationCode(6);
+
+            Session session = new Session(
+                sessionId,
+                new UserBuilder().build().getId(),
+                new SessionDuration(Long.valueOf(10)),
+                new SessionStatusConfirmated(),
+                sessionConfirmationCode
+            );
+
+            when(sessionRepositoryMock.get(any(SessionId.class))).thenReturn(
+                session
+            );
+
+            assertTrue(sessionService.isSessionConfirmed(sessionId));
         }
     }
 }

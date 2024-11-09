@@ -1,7 +1,11 @@
 package com.springtodo.core.identity_and_access.infrastructure.utils;
 
+import com.springtodo.core.identity_and_access.application.exception.CouldNotDecodeToken;
 import com.springtodo.core.identity_and_access.application.exception.CouldNotGenerateToken;
+import com.springtodo.core.identity_and_access.application.exception.InvalidToken;
 import com.springtodo.core.identity_and_access.application.utils.SessionTokenGeneratorUtil;
+import com.springtodo.core.identity_and_access.domain.value_object.SessionId;
+
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.WeakKeyException;
@@ -81,4 +85,10 @@ public class JjwtSessionTokenGeneratorUtil extends SessionTokenGeneratorUtil {
             throw new CouldNotGenerateToken(e.getMessage());
         }
     }
+
+	@Override
+	public SessionId decode(String sessionToken) throws InvalidToken, CouldNotDecodeToken {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'decode'");
+	}
 }

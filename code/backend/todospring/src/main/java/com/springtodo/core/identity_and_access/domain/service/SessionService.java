@@ -1,15 +1,12 @@
 package com.springtodo.core.identity_and_access.domain.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import com.springtodo.core.identity_and_access.domain.entity.Session;
 import com.springtodo.core.identity_and_access.domain.entity.User;
 import com.springtodo.core.identity_and_access.domain.exception.ConfirmationCodeIsNotEqualToSessionConfirmationCode;
 import com.springtodo.core.identity_and_access.domain.exception.CouldNotFindSession;
 import com.springtodo.core.identity_and_access.domain.exception.CouldNotRetrieveUser;
 import com.springtodo.core.identity_and_access.domain.exception.CouldNotSaveSession;
+import com.springtodo.core.identity_and_access.domain.exception.CouldNotSendEmail;
 import com.springtodo.core.identity_and_access.domain.exception.InvalidPassword;
 import com.springtodo.core.identity_and_access.domain.exception.SessionNotFound;
 import com.springtodo.core.identity_and_access.domain.exception.UserNotFoundException;
@@ -20,8 +17,10 @@ import com.springtodo.core.identity_and_access.domain.value_object.ConfirmationC
 import com.springtodo.core.identity_and_access.domain.value_object.SessionId;
 import com.springtodo.core.identity_and_access.domain.value_object.UserEmail;
 import com.springtodo.core.identity_and_access.domain.value_object.UserPassword;
-
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
@@ -79,14 +78,21 @@ public class SessionService {
     }
 
     public void sendConfirmationCode(SessionId sessionId)
-        throws SessionNotFound, CouldNotFindSession, UserNotFoundException, CouldNotRetrieveUser {
+        throws SessionNotFound, CouldNotFindSession, UserNotFoundException, CouldNotRetrieveUser, CouldNotSendEmail {
         Session session = this.sessionRepository.get(sessionId);
 
         User user = this.userRepository.getUserById(session.getUserId());
 
         this.emailSenderProvider.sendConfirmationCode(
-            session.getConfirmationCode(),
-            user
-        );
+                session.getConfirmationCode(),
+                user
+            );
+    }
+
+    public boolean isSessionConfirmed(SessionId sessionId)
+        throws SessionNotFound, CouldNotFindSession {
+        Session session = sessionRepository.get(sessionId);
+
+        return session.isConfirmated();
     }
 }
