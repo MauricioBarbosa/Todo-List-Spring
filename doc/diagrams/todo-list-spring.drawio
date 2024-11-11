@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="5PETfb4ItzDlBU-etrcw" name="Use case diagram">
-        <mxGraphModel dx="2559" dy="1524" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="2048" dy="1524" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -361,8 +361,8 @@
             </root>
         </mxGraphModel>
     </diagram>
-    <diagram id="RrkKVNij4gh1oeYLhbT0" name="Implementation-Diagram">
-        <mxGraphModel dx="2959" dy="1524" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <diagram id="RrkKVNij4gh1oeYLhbT0" name="Architecture Diagram">
+        <mxGraphModel dx="3759" dy="1524" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -413,7 +413,7 @@
                 <mxCell id="_r5XLc_uQZXmlLnPhyG9-47" value="UpdateUser" style="rounded=0;whiteSpace=wrap;html=1;" parent="_r5XLc_uQZXmlLnPhyG9-16" vertex="1">
                     <mxGeometry x="363.47" y="110.00030534351146" width="186" height="34.45196600892986" as="geometry"/>
                 </mxCell>
-                <mxCell id="_r5XLc_uQZXmlLnPhyG9-85" value="&lt;font style=&quot;font-size: 10px;&quot;&gt;ResendConfirmationCode&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;" parent="_r5XLc_uQZXmlLnPhyG9-16" vertex="1">
+                <mxCell id="_r5XLc_uQZXmlLnPhyG9-85" value="&lt;font style=&quot;font-size: 10px;&quot;&gt;SendConfirmationCode&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;" parent="_r5XLc_uQZXmlLnPhyG9-16" vertex="1">
                     <mxGeometry x="26" y="115.19876134235922" width="139" height="31.663510010082103" as="geometry"/>
                 </mxCell>
                 <mxCell id="_r5XLc_uQZXmlLnPhyG9-148" value="UpdateUserPassword" style="rounded=0;whiteSpace=wrap;html=1;" parent="_r5XLc_uQZXmlLnPhyG9-16" vertex="1">
@@ -729,6 +729,30 @@
                             <mxPoint x="405" y="780"/>
                         </Array>
                     </mxGeometry>
+                </mxCell>
+                <mxCell id="3d5l6XEs4En5vQsxarlv-86" value="Rest" style="shape=folder;fontStyle=1;tabWidth=110;tabHeight=30;tabPosition=left;html=1;boundedLbl=1;labelInHeader=1;container=1;collapsible=0;recursiveResize=0;fontSize=10;" vertex="1" parent="1">
+                    <mxGeometry x="-1113" y="-13" width="874.26" height="1328" as="geometry"/>
+                </mxCell>
+                <mxCell id="3d5l6XEs4En5vQsxarlv-88" value="Control" style="shape=folder;fontStyle=1;tabWidth=110;tabHeight=30;tabPosition=left;html=1;boundedLbl=1;labelInHeader=1;container=1;collapsible=0;recursiveResize=0;fontSize=10;" vertex="1" parent="3d5l6XEs4En5vQsxarlv-86">
+                    <mxGeometry x="24" y="43" width="828" height="292" as="geometry"/>
+                </mxCell>
+                <mxCell id="3d5l6XEs4En5vQsxarlv-91" value="Login" style="html=1;fontSize=10;" vertex="1" parent="3d5l6XEs4En5vQsxarlv-88">
+                    <mxGeometry x="26.99798504046521" y="53.999090235574386" width="110" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="3d5l6XEs4En5vQsxarlv-92" value="User" style="html=1;fontSize=10;" vertex="1" parent="3d5l6XEs4En5vQsxarlv-88">
+                    <mxGeometry x="26.99798504046521" y="141.99909023557439" width="110" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="3d5l6XEs4En5vQsxarlv-93" value="SessionConfirmation" style="html=1;fontSize=10;" vertex="1" parent="3d5l6XEs4En5vQsxarlv-88">
+                    <mxGeometry x="26.99798504046521" y="223.99909023557439" width="110" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="3d5l6XEs4En5vQsxarlv-89" value="ExceptionHandler" style="shape=folder;fontStyle=1;tabWidth=110;tabHeight=30;tabPosition=left;html=1;boundedLbl=1;labelInHeader=1;container=1;collapsible=0;recursiveResize=0;fontSize=10;" vertex="1" parent="3d5l6XEs4En5vQsxarlv-86">
+                    <mxGeometry x="23.13" y="353" width="828" height="292" as="geometry"/>
+                </mxCell>
+                <mxCell id="3d5l6XEs4En5vQsxarlv-90" value="pojo" style="shape=folder;fontStyle=1;tabWidth=110;tabHeight=30;tabPosition=left;html=1;boundedLbl=1;labelInHeader=1;container=1;collapsible=0;recursiveResize=0;fontSize=10;" vertex="1" parent="3d5l6XEs4En5vQsxarlv-86">
+                    <mxGeometry x="23.130000000000003" y="660" width="828" height="292" as="geometry"/>
+                </mxCell>
+                <mxCell id="3d5l6XEs4En5vQsxarlv-94" value="middleware" style="shape=folder;fontStyle=1;tabWidth=110;tabHeight=30;tabPosition=left;html=1;boundedLbl=1;labelInHeader=1;container=1;collapsible=0;recursiveResize=0;fontSize=10;" vertex="1" parent="3d5l6XEs4En5vQsxarlv-86">
+                    <mxGeometry x="19" y="967" width="828" height="292" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>
