@@ -1,6 +1,6 @@
 package com.springtodo.core.identity_and_access.domain.exception;
 
-public class ConfirmationCodeIsNotEqualToSessionConfirmationCode extends Error {
+public class ConfirmationCodeIsNotEqualToSessionConfirmationCode extends Exception {
 
     public ConfirmationCodeIsNotEqualToSessionConfirmationCode(
         String informedConfirmationCode

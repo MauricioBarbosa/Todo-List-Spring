@@ -1,4 +1,4 @@
-package com.springtodo.rest.pojo.SessionControl;
+package com.springtodo.rest.pojo.session_control;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

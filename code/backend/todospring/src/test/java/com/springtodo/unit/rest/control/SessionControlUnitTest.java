@@ -8,25 +8,29 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import com.springtodo.core.identity_and_access.application.dto.ConfirmCodeInput;
+import com.springtodo.core.identity_and_access.application.dto.SendConfirmationCodeInput;
 import com.springtodo.core.identity_and_access.application.dto.StartSessionInput;
 import com.springtodo.core.identity_and_access.application.dto.StartSessionOutput;
 import com.springtodo.core.identity_and_access.application.exception.CouldNotDecodeToken;
 import com.springtodo.core.identity_and_access.application.exception.CouldNotGenerateToken;
 import com.springtodo.core.identity_and_access.application.exception.InvalidToken;
 import com.springtodo.core.identity_and_access.application.usecase.ConfirmCode;
+import com.springtodo.core.identity_and_access.application.usecase.SendConfirmationCode;
 import com.springtodo.core.identity_and_access.application.usecase.StartSession;
 import com.springtodo.core.identity_and_access.domain.exception.ConfirmationCodeIsNotEqualToSessionConfirmationCode;
 import com.springtodo.core.identity_and_access.domain.exception.CouldNotFindSession;
 import com.springtodo.core.identity_and_access.domain.exception.CouldNotRetrieveUser;
 import com.springtodo.core.identity_and_access.domain.exception.CouldNotSaveSession;
+import com.springtodo.core.identity_and_access.domain.exception.CouldNotSendEmail;
 import com.springtodo.core.identity_and_access.domain.exception.InvalidPassword;
 import com.springtodo.core.identity_and_access.domain.exception.SessionNotFound;
 import com.springtodo.core.identity_and_access.domain.exception.UserNotFoundException;
 import com.springtodo.core.identity_and_access.domain.value_object.SessionId;
 import com.springtodo.rest.control.SessionControl;
-import com.springtodo.rest.pojo.SessionControl.ConfirmSessionInput;
-import com.springtodo.rest.pojo.SessionControl.LoginInput;
-import com.springtodo.rest.pojo.SessionControl.LoginOutput;
+import com.springtodo.rest.pojo.session_control.ConfirmSessionInput;
+import com.springtodo.rest.pojo.session_control.LoginInput;
+import com.springtodo.rest.pojo.session_control.LoginOutput;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -50,6 +54,9 @@ public class SessionControlUnitTest {
 
     @Mock
     private ConfirmCode confirmCodeUseCase;
+
+    @Mock
+    private SendConfirmationCode sendConfirmationCode;
 
     @BeforeEach
     void setUp() {
@@ -210,7 +217,7 @@ public class SessionControlUnitTest {
 
         private String confirmationCode = "AXRT7";
         private String sessionToken = "someSessionToken";
-        
+
         @Test
         void shouldThrowInvalidToken()
             throws InvalidToken, CouldNotDecodeToken, SessionNotFound, CouldNotFindSession, ConfirmationCodeIsNotEqualToSessionConfirmationCode {
@@ -225,7 +232,10 @@ public class SessionControlUnitTest {
                 .execute(any(ConfirmCodeInput.class));
 
             assertThrows(InvalidToken.class, () -> {
-                sessionControl.confirmSession(sessionToken, confirmSessionInput);
+                sessionControl.confirmSession(
+                    sessionToken,
+                    confirmSessionInput
+                );
             });
         }
 
@@ -245,7 +255,10 @@ public class SessionControlUnitTest {
                 .execute(any(ConfirmCodeInput.class));
 
             assertThrows(CouldNotDecodeToken.class, () -> {
-                sessionControl.confirmSession(sessionToken,confirmSessionInput);
+                sessionControl.confirmSession(
+                    sessionToken,
+                    confirmSessionInput
+                );
             });
         }
 
@@ -265,7 +278,10 @@ public class SessionControlUnitTest {
                 .execute(any(ConfirmCodeInput.class));
 
             assertThrows(SessionNotFound.class, () -> {
-                sessionControl.confirmSession(sessionToken,confirmSessionInput);
+                sessionControl.confirmSession(
+                    sessionToken,
+                    confirmSessionInput
+                );
             });
         }
 
@@ -285,7 +301,10 @@ public class SessionControlUnitTest {
                 .execute(any(ConfirmCodeInput.class));
 
             assertThrows(CouldNotFindSession.class, () -> {
-                sessionControl.confirmSession(sessionToken,confirmSessionInput);
+                sessionControl.confirmSession(
+                    sessionToken,
+                    confirmSessionInput
+                );
             });
         }
 
@@ -305,9 +324,15 @@ public class SessionControlUnitTest {
                 .when(confirmCodeUseCase)
                 .execute(any(ConfirmCodeInput.class));
 
-            assertThrows(ConfirmationCodeIsNotEqualToSessionConfirmationCode.class, () -> {
-                sessionControl.confirmSession(sessionToken,confirmSessionInput);
-            });
+            assertThrows(
+                ConfirmationCodeIsNotEqualToSessionConfirmationCode.class,
+                () -> {
+                    sessionControl.confirmSession(
+                        sessionToken,
+                        confirmSessionInput
+                    );
+                }
+            );
         }
 
         @Test
@@ -324,6 +349,137 @@ public class SessionControlUnitTest {
             ResponseEntity<Void> response = sessionControl.confirmSession(
                 sessionToken,
                 confirmSessionInput
+            );
+
+            assertEquals(response.getStatusCode(), HttpStatus.OK);
+        }
+    }
+
+    @Nested
+    @DisplayName("Testing SessionControl.sendConfirmationCode")
+    class TestPostSendConfirmationCode {
+
+        private String sessionToken = "someSessionToken";
+
+        @Test
+        void shouldInvalidToken()
+            throws InvalidToken, CouldNotDecodeToken, SessionNotFound, CouldNotFindSession, UserNotFoundException, CouldNotRetrieveUser, CouldNotSendEmail {
+            InvalidToken invalidToken = new InvalidToken();
+
+            doThrow(invalidToken)
+                .when(sendConfirmationCode)
+                .execute(any(SendConfirmationCodeInput.class));
+
+            assertThrows(InvalidToken.class, () -> {
+                sessionControl.sendConfirmationCode(sessionToken);
+            });
+        }
+
+        @Test
+        void shouldCouldNotDecodeToken()
+            throws InvalidToken, CouldNotDecodeToken, SessionNotFound, CouldNotFindSession, UserNotFoundException, CouldNotRetrieveUser, CouldNotSendEmail {
+            CouldNotDecodeToken couldNotDecodeToken = new CouldNotDecodeToken(
+                "could not decode token for some reason"
+            );
+
+            doThrow(couldNotDecodeToken)
+                .when(sendConfirmationCode)
+                .execute(any(SendConfirmationCodeInput.class));
+
+            assertThrows(CouldNotDecodeToken.class, () -> {
+                sessionControl.sendConfirmationCode(sessionToken);
+            });
+        }
+
+        @Test
+        void shouldSessionNotFound()
+            throws InvalidToken, CouldNotDecodeToken, SessionNotFound, CouldNotFindSession, UserNotFoundException, CouldNotRetrieveUser, CouldNotSendEmail {
+            SessionId sessionId = new SessionId("someSessionId");
+
+            SessionNotFound sessionNotFound = new SessionNotFound(sessionId);
+
+            doThrow(sessionNotFound)
+                .when(sendConfirmationCode)
+                .execute(any(SendConfirmationCodeInput.class));
+
+            assertThrows(SessionNotFound.class, () -> {
+                sessionControl.sendConfirmationCode(sessionToken);
+            });
+        }
+
+        @Test
+        void shouldCouldNotFindSession()
+            throws InvalidToken, CouldNotDecodeToken, SessionNotFound, CouldNotFindSession, UserNotFoundException, CouldNotRetrieveUser, CouldNotSendEmail {
+            CouldNotFindSession couldNotFindSession = new CouldNotFindSession(
+                "could not find session for some reason"
+            );
+
+            doThrow(couldNotFindSession)
+                .when(sendConfirmationCode)
+                .execute(any(SendConfirmationCodeInput.class));
+
+            assertThrows(CouldNotFindSession.class, () -> {
+                sessionControl.sendConfirmationCode(sessionToken);
+            });
+        }
+
+        @Test
+        void shouldUserNotFoundException()
+            throws InvalidToken, CouldNotDecodeToken, SessionNotFound, CouldNotFindSession, UserNotFoundException, CouldNotRetrieveUser, CouldNotSendEmail {
+            UserNotFoundException userNotFoundException =
+                new UserNotFoundException(
+                    "could not find user for some reason"
+                );
+
+            doThrow(userNotFoundException)
+                .when(sendConfirmationCode)
+                .execute(any(SendConfirmationCodeInput.class));
+
+            assertThrows(UserNotFoundException.class, () -> {
+                sessionControl.sendConfirmationCode(sessionToken);
+            });
+        }
+
+        @Test
+        void shouldCouldNotRetrieveUser()
+            throws InvalidToken, CouldNotDecodeToken, SessionNotFound, CouldNotFindSession, UserNotFoundException, CouldNotRetrieveUser, CouldNotSendEmail {
+            CouldNotRetrieveUser couldNotRetrieveUser =
+                new CouldNotRetrieveUser("could not find user for some reason");
+
+            doThrow(couldNotRetrieveUser)
+                .when(sendConfirmationCode)
+                .execute(any(SendConfirmationCodeInput.class));
+
+            assertThrows(CouldNotRetrieveUser.class, () -> {
+                sessionControl.sendConfirmationCode(sessionToken);
+            });
+        }
+
+        @Test
+        void shouldCouldNotSendEmail()
+            throws InvalidToken, CouldNotDecodeToken, SessionNotFound, CouldNotFindSession, UserNotFoundException, CouldNotRetrieveUser, CouldNotSendEmail {
+            CouldNotSendEmail couldNotRetrieveUser = new CouldNotSendEmail(
+                "could not send email for some reason"
+            );
+
+            doThrow(couldNotRetrieveUser)
+                .when(sendConfirmationCode)
+                .execute(any(SendConfirmationCodeInput.class));
+
+            assertThrows(CouldNotSendEmail.class, () -> {
+                sessionControl.sendConfirmationCode(sessionToken);
+            });
+        }
+
+        @Test
+        void shouldReturnASuccessResponse()
+            throws InvalidToken, CouldNotDecodeToken, SessionNotFound, CouldNotFindSession, UserNotFoundException, CouldNotRetrieveUser, CouldNotSendEmail {
+            doNothing()
+                .when(sendConfirmationCode)
+                .execute(any(SendConfirmationCodeInput.class));
+
+            ResponseEntity<Void> response = sessionControl.sendConfirmationCode(
+                sessionToken
             );
 
             assertEquals(response.getStatusCode(), HttpStatus.OK);
