@@ -165,7 +165,7 @@ public class SessionUnitTest {
 
     @Test
     @DisplayName("It should confirm the session")
-    public void shouldConfirmTheSession() {
+    public void shouldConfirmTheSession() throws ConfirmationCodeIsNotEqualToSessionConfirmationCode {
         String confirmationCode = "AXTS4";
 
         SessionId sessionId = new SessionId();

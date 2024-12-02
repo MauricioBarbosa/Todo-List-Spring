@@ -1,5 +1,10 @@
 package com.springtodo.rest.exception_handler;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+
 import com.springtodo.core.identity_and_access.application.exception.CouldNotDecodeToken;
 import com.springtodo.core.identity_and_access.application.exception.CouldNotGenerateToken;
 import com.springtodo.core.identity_and_access.domain.exception.ConfirmationCodeIsNotEqualToSessionConfirmationCode;
@@ -11,61 +16,67 @@ import com.springtodo.core.identity_and_access.domain.exception.SessionNotFound;
 import com.springtodo.core.identity_and_access.domain.exception.UserNotFoundException;
 import com.springtodo.rest.pojo.shared.BadRequestOutput;
 import com.springtodo.rest.pojo.shared.UnauthorizedOutput;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 
 @ControllerAdvice
 public class SessionControlExceptionHandler {
 
+    @ExceptionHandler({ InvalidPassword.class })
     public ResponseEntity<BadRequestOutput> handleInvalidPassword(
         InvalidPassword invalidPassword
     ) {
         return buildBadRequestResponse(invalidPassword);
     }
 
+    @ExceptionHandler({ UserNotFoundException.class })
     public ResponseEntity<BadRequestOutput> handleUserNotFoundException(
         UserNotFoundException userNotFoundException
     ) {
         return buildBadRequestResponse(userNotFoundException);
     }
 
+    @ExceptionHandler({ CouldNotRetrieveUser.class })
     public ResponseEntity<Void> handleCouldNotRetrieveUser(
         CouldNotRetrieveUser couldNotRetrieveUser
     ) {
         return buildInternalServerErrorResponse();
     }
 
+    @ExceptionHandler({ CouldNotSaveSession.class })
     public ResponseEntity<Void> handleCouldNotSaveSession(
         CouldNotSaveSession couldNotSaveSession
     ) {
         return buildInternalServerErrorResponse();
     }
 
+    @ExceptionHandler({ CouldNotGenerateToken.class })
     public ResponseEntity<Void> handleCouldNotGenerateToken(
         CouldNotGenerateToken couldNotGenerateToken
     ) {
         return buildInternalServerErrorResponse();
     }
 
+    @ExceptionHandler({ CouldNotDecodeToken.class })
     public ResponseEntity<Void> handleCouldNotDecodeToken(
         CouldNotDecodeToken couldNotDecodeToken
     ) {
         return buildInternalServerErrorResponse();
     }
 
+    @ExceptionHandler({ SessionNotFound.class })
     public ResponseEntity<UnauthorizedOutput> handleSessionNotFound(
         SessionNotFound sessionNotFound
     ) {
         return buildUnauthorizedResponse(sessionNotFound);
     }
 
+    @ExceptionHandler({ CouldNotFindSession.class })
     public ResponseEntity<Void> handleCouldNotFindSession(
         CouldNotFindSession couldNotFindSession
     ) {
         return buildInternalServerErrorResponse();
     }
 
+    @ExceptionHandler({ ConfirmationCodeIsNotEqualToSessionConfirmationCode.class })
     public ResponseEntity<
         BadRequestOutput
     > handleConfirmationCodeIsNotEqualToSessionConfirmationCode(

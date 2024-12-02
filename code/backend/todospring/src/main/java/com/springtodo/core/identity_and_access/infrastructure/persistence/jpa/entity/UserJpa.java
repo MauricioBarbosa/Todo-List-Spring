@@ -1,11 +1,10 @@
-package com.springtodo.core.autentication.infrastructure.persistence.repository.hibernate_impl.jpa.model;
-
-import java.util.UUID;
+package com.springtodo.core.identity_and_access.infrastructure.persistence.jpa.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,6 +13,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserJpa {
+
     @Id
     @GeneratedValue
     private UUID id;
@@ -25,8 +25,4 @@ public class UserJpa {
     private String password;
 
     private String fullname;
-
-    public UserJpa() {
-    }
-
 }

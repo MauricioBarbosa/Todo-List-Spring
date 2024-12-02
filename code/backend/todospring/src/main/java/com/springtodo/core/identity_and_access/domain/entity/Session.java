@@ -1,5 +1,7 @@
 package com.springtodo.core.identity_and_access.domain.entity;
 
+import java.io.Serializable;
+
 import com.springtodo.core.identity_and_access.domain.exception.ConfirmationCodeIsNotEqualToSessionConfirmationCode;
 import com.springtodo.core.identity_and_access.domain.value_object.ConfirmationCode;
 import com.springtodo.core.identity_and_access.domain.value_object.SessionDuration;
@@ -8,10 +10,11 @@ import com.springtodo.core.identity_and_access.domain.value_object.SessionStatus
 import com.springtodo.core.identity_and_access.domain.value_object.SessionStatusConfirmated;
 import com.springtodo.core.identity_and_access.domain.value_object.SessionStatusStarted;
 import com.springtodo.core.identity_and_access.domain.value_object.UserId;
+
 import lombok.Getter;
 
 @Getter
-public class Session {
+public class Session implements Serializable {
 
     private SessionId sessionId;
     private UserId userId;
@@ -20,10 +23,9 @@ public class Session {
     private ConfirmationCode confirmationCode;
 
     public Session(
-        User user,
-        Long durationInSeconds,
-        int confirmationCodeSize
-    ) {
+            User user,
+            Long durationInSeconds,
+            int confirmationCodeSize) {
         this.userId = user.getId();
         this.duration = new SessionDuration(durationInSeconds);
 
@@ -33,12 +35,11 @@ public class Session {
     }
 
     public Session(
-        SessionId sessionId,
-        UserId userId,
-        SessionDuration duration,
-        SessionStatus status,
-        ConfirmationCode confirmationCode
-    ) {
+            SessionId sessionId,
+            UserId userId,
+            SessionDuration duration,
+            SessionStatus status,
+            ConfirmationCode confirmationCode) {
         this.confirmationCode = confirmationCode;
         this.userId = userId;
         this.duration = duration;
@@ -51,11 +52,10 @@ public class Session {
     }
 
     public void confirm(ConfirmationCode aConfirmationCode)
-        throws ConfirmationCodeIsNotEqualToSessionConfirmationCode {
+            throws ConfirmationCodeIsNotEqualToSessionConfirmationCode {
         if (!this.confirmationCode.equals(aConfirmationCode)) {
             throw new ConfirmationCodeIsNotEqualToSessionConfirmationCode(
-                aConfirmationCode.getCode()
-            );
+                    aConfirmationCode.getCode());
         }
 
         this.status = new SessionStatusConfirmated();

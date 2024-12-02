@@ -1,10 +1,12 @@
 package com.springtodo.core.identity_and_access.domain.value_object;
 
+import java.io.Serializable;
 import java.util.UUID;
+
 import lombok.Getter;
 
 @Getter
-public class UserId {
+public class UserId implements Serializable {
 
     private String id;
 

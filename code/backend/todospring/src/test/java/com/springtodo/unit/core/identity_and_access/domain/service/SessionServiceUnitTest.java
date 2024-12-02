@@ -274,7 +274,7 @@ public class SessionServiceUnitTest {
     @Test
     @DisplayName("it should confirmate the session")
     void shouldConfirmateTheSession()
-        throws SessionNotFound, CouldNotFindSession {
+        throws SessionNotFound, CouldNotFindSession, ConfirmationCodeIsNotEqualToSessionConfirmationCode {
         SessionId sessionId = new SessionId("#someSessionId");
 
         ConfirmationCode confirmationCode = new ConfirmationCode("ASDXR");

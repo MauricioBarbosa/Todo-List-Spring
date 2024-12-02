@@ -1,6 +1,4 @@
-package com.springtodo.rest.pojo.Shared;
-
-
+package com.springtodo.rest.pojo.shared;
 
 import lombok.Getter;
 import lombok.Setter;
