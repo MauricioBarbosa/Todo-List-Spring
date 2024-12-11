@@ -1,5 +1,8 @@
 package com.springtodo.core.identity_and_access.application.usecase;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.springtodo.core.identity_and_access.application.dto.SendConfirmationCodeInput;
 import com.springtodo.core.identity_and_access.application.exception.CouldNotDecodeToken;
 import com.springtodo.core.identity_and_access.application.exception.InvalidToken;
@@ -11,8 +14,8 @@ import com.springtodo.core.identity_and_access.domain.exception.SessionNotFound;
 import com.springtodo.core.identity_and_access.domain.exception.UserNotFoundException;
 import com.springtodo.core.identity_and_access.domain.service.SessionService;
 import com.springtodo.core.identity_and_access.domain.value_object.SessionId;
-import org.springframework.beans.factory.annotation.Autowired;
 
+@Service
 public class SendConfirmationCode {
 
     @Autowired
@@ -22,10 +25,10 @@ public class SendConfirmationCode {
     private SessionTokenGeneratorUtil sessionTokenGeneratorUtil;
 
     public void execute(SendConfirmationCodeInput sendConfirmationCodeInput)
-        throws InvalidToken, CouldNotDecodeToken, SessionNotFound, CouldNotFindSession, UserNotFoundException, CouldNotRetrieveUser, CouldNotSendEmail {
+            throws InvalidToken, CouldNotDecodeToken, SessionNotFound, CouldNotFindSession, UserNotFoundException,
+            CouldNotRetrieveUser, CouldNotSendEmail {
         SessionId sessionId = sessionTokenGeneratorUtil.decode(
-            sendConfirmationCodeInput.getSessionToken()
-        );
+                sendConfirmationCodeInput.getSessionToken());
 
         sessionService.sendConfirmationCode(sessionId);
     }

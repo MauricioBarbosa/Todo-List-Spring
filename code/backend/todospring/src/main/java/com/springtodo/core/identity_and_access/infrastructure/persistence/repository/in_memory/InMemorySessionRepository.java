@@ -3,6 +3,8 @@ package com.springtodo.core.identity_and_access.infrastructure.persistence.repos
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.cache.annotation.Cacheable;
+
 import com.springtodo.core.identity_and_access.domain.entity.Session;
 import com.springtodo.core.identity_and_access.domain.exception.CouldNotFindSession;
 import com.springtodo.core.identity_and_access.domain.exception.CouldNotSaveSession;
@@ -14,6 +16,7 @@ public class InMemorySessionRepository extends SessionRepository {
     private final Map<SessionId, Session> sessionStore = new HashMap();
 
     @Override
+    @Cacheable("session")
     public Session get(SessionId sessionId) throws SessionNotFound, CouldNotFindSession {
         try {
             Session session = sessionStore.get(sessionId);

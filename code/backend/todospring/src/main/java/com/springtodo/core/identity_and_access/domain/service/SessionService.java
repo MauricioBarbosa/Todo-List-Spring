@@ -1,5 +1,9 @@
 package com.springtodo.core.identity_and_access.domain.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import com.springtodo.core.identity_and_access.domain.entity.Session;
 import com.springtodo.core.identity_and_access.domain.entity.User;
 import com.springtodo.core.identity_and_access.domain.exception.ConfirmationCodeIsNotEqualToSessionConfirmationCode;
@@ -17,10 +21,8 @@ import com.springtodo.core.identity_and_access.domain.value_object.ConfirmationC
 import com.springtodo.core.identity_and_access.domain.value_object.SessionId;
 import com.springtodo.core.identity_and_access.domain.value_object.UserEmail;
 import com.springtodo.core.identity_and_access.domain.value_object.UserPassword;
+
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
@@ -41,13 +43,10 @@ public class SessionService {
     @Value("${confirmationCodeSize}")
     private int confirmationCodeSize;
 
-    public SessionService(UserRepository userRepository) {}
-
     public Session startSession(
-        UserPassword anUserPassword,
-        UserEmail anUserEmail
-    )
-        throws UserNotFoundException, CouldNotRetrieveUser, InvalidPassword, CouldNotSaveSession {
+            UserPassword anUserPassword,
+            UserEmail anUserEmail)
+            throws UserNotFoundException, CouldNotRetrieveUser, InvalidPassword, CouldNotSaveSession {
         User user = this.userRepository.getUserByEmail(anUserEmail);
 
         if (!user.passwordEquals(anUserPassword)) {
@@ -57,10 +56,9 @@ public class SessionService {
         }
 
         Session session = new Session(
-            user,
-            this.sessionDurationInSeconds,
-            this.confirmationCodeSize
-        );
+                user,
+                this.sessionDurationInSeconds,
+                this.confirmationCodeSize);
 
         this.sessionRepository.save(session);
 
@@ -68,29 +66,28 @@ public class SessionService {
     }
 
     public void confirmSession(
-        SessionId aSessionId,
-        ConfirmationCode aConfirmationCode
-    )
-        throws SessionNotFound, CouldNotFindSession, ConfirmationCodeIsNotEqualToSessionConfirmationCode {
+            SessionId aSessionId,
+            ConfirmationCode aConfirmationCode)
+            throws SessionNotFound, CouldNotFindSession, ConfirmationCodeIsNotEqualToSessionConfirmationCode {
         Session session = this.sessionRepository.get(aSessionId);
 
         session.confirm(aConfirmationCode);
     }
 
     public void sendConfirmationCode(SessionId sessionId)
-        throws SessionNotFound, CouldNotFindSession, UserNotFoundException, CouldNotRetrieveUser, CouldNotSendEmail {
+            throws SessionNotFound, CouldNotFindSession, UserNotFoundException, CouldNotRetrieveUser,
+            CouldNotSendEmail {
         Session session = this.sessionRepository.get(sessionId);
 
         User user = this.userRepository.getUserById(session.getUserId());
 
         this.emailSenderProvider.sendConfirmationCode(
                 session.getConfirmationCode(),
-                user
-            );
+                user);
     }
 
     public boolean isSessionConfirmed(SessionId sessionId)
-        throws SessionNotFound, CouldNotFindSession {
+            throws SessionNotFound, CouldNotFindSession {
         Session session = sessionRepository.get(sessionId);
 
         return session.isConfirmated();

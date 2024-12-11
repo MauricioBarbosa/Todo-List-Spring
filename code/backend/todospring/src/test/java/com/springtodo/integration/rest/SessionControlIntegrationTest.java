@@ -5,6 +5,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.UUID;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -25,10 +28,14 @@ import com.springtodo.core.identity_and_access.infrastructure.persistence.jpa.en
 import com.springtodo.core.identity_and_access.infrastructure.persistence.jpa.repository.UserJpaRepository;
 import com.springtodo.rest.pojo.AuthenticationInputJson;
 
+import jakarta.transaction.Transactional;
+
 @SpringBootTest(classes = App.class, webEnvironment = WebEnvironment.DEFINED_PORT)
 @AutoConfigureMockMvc
 @ExtendWith(SpringExtension.class)
+@EnableCaching
 @TestPropertySource(locations = "classpath:application-test.properties")
+@Transactional
 public class SessionControlIntegrationTest {
 
     @Autowired
@@ -37,18 +44,20 @@ public class SessionControlIntegrationTest {
     @Autowired
     private UserJpaRepository userJpaRepository;
 
-    @Value("")
+    @Value("${jwtSecretKey}")
     private String secretKey;
 
     private String userName = "Some user";
     private String userEmail = "some@email1.com";
     private String userPassword = "#somePassword";
     private String userFullname = "Some full name";
+    private String id = UUID.randomUUID().toString();
 
     @BeforeEach
     void setUp() {
         UserJpa userJpa = new UserJpa();
 
+        userJpa.setId(UUID.fromString(id));
         userJpa.setName(this.userName);
         userJpa.setEmail(this.userEmail);
         userJpa.setPassword(this.userPassword);
@@ -71,8 +80,7 @@ public class SessionControlIntegrationTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").isString())
-                .andExpect(jsonPath("$.message").value("User not found with email: " + aWrongEmail));
-        ;
+                .andExpect(jsonPath("$.message").value("user of email" + aWrongEmail + " not found"));
     }
 
     void it_shouldReturnInvalidPasswordWithStatus400() {
