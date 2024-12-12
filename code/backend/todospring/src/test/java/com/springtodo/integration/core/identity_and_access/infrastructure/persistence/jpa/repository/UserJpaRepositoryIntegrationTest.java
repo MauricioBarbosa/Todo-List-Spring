@@ -11,13 +11,11 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.springtodo.core.identity_and_access.infrastructure.persistence.jpa.entity.UserJpa;
 import com.springtodo.core.identity_and_access.infrastructure.persistence.jpa.repository.UserJpaRepository;
 
-@TestPropertySource(locations = "classpath:application-test.properties")
 @Transactional
 @DataJpaTest
 public class UserJpaRepositoryIntegrationTest {

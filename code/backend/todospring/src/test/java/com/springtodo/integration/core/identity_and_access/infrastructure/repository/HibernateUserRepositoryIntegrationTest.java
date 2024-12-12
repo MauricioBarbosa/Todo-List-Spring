@@ -3,20 +3,18 @@ package com.springtodo.integration.core.identity_and_access.infrastructure.repos
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-
 import com.springtodo.core.identity_and_access.domain.entity.User;
 import com.springtodo.core.identity_and_access.domain.exception.CouldNotRetrieveUser;
 import com.springtodo.core.identity_and_access.domain.exception.UserNotFoundException;
 import com.springtodo.core.identity_and_access.domain.value_object.UserEmail;
 import com.springtodo.core.identity_and_access.infrastructure.persistence.jpa.entity.UserJpa;
 import com.springtodo.core.identity_and_access.infrastructure.persistence.repository.hibernate.HibernateUserRepository;
-
 import jakarta.persistence.EntityManager;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 @DataJpaTest
 public class HibernateUserRepositoryIntegrationTest {
@@ -52,7 +50,8 @@ public class HibernateUserRepositoryIntegrationTest {
         @Test
         void should_ThrowUserNotFoundException() {
             UserEmail fakeUserEmail = new UserEmail(
-                    "somefakeuseremail@email.com");
+                "somefakeuseremail@email.com"
+            );
 
             assertThrows(UserNotFoundException.class, () -> {
                 hibernateUserRepository.getUserByEmail(fakeUserEmail);
@@ -61,11 +60,12 @@ public class HibernateUserRepositoryIntegrationTest {
 
         @Test
         void should_ReturnAUserEntity()
-                throws UserNotFoundException, CouldNotRetrieveUser {
+            throws UserNotFoundException, CouldNotRetrieveUser {
             UserEmail userEmailValueObject = new UserEmail(userEmail);
 
             User user = hibernateUserRepository.getUserByEmail(
-                    userEmailValueObject);
+                userEmailValueObject
+            );
 
             assertEquals(user.getEmail(), userEmailValueObject);
             assertEquals(user.getPassword().getPassword(), userPassword);

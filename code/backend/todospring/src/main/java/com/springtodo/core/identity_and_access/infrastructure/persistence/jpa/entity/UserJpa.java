@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "Users")
+@Table(name = "todospring_users")
 @Getter
 @Setter
 public class UserJpa {
