@@ -14,7 +14,7 @@
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.3.3</version>
     </parent>
-    
+
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -27,7 +27,7 @@
         <jjwt-jackson.version>0.12.6</jjwt-jackson.version>
         <jjwt-impl.version>0.12.6</jjwt-impl.version>
         <jjwt-jackson.version>0.12.6</jjwt-jackson.version>
-        <jjwt-api.version>0.12.6</jjwt-api.version>    
+        <jjwt-api.version>0.12.6</jjwt-api.version>
     </properties>
 
     <dependencies>
@@ -41,7 +41,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        
+
         <dependency>
             <groupId>org.xerial</groupId>
             <artifactId>sqlite-jdbc</artifactId>
@@ -115,8 +115,8 @@
             <artifactId>spring-boot-starter-validation</artifactId>
             <version>3.3.3</version>
         </dependency>
-        
-        
+
+
     </dependencies>
 
     <build>

@@ -1,4 +1,4 @@
-CREATE TABLE Users (
+CREATE TABLE todospring_users (
   id VARCHAR(40) PRIMARY KEY NOT NULL UNIQUE,
   email VARCHAR(90) NOT NULL UNIQUE,
   name VARCHAR(30) NOT NULL,
@@ -7,7 +7,7 @@ CREATE TABLE Users (
   picture_path VARCHAR(200)
 );
 
-CREATE TABLE Tasks (
+CREATE TABLE todospring_tasks (
   id VARCHAR(40) PRIMARY KEY NOT NULL UNIQUE,
   user_id VARCHAR(40) NOT NULL,
   is_deleted INTEGER NOT NULL CHECK (is_deleted IN (0, 1)),
@@ -16,7 +16,7 @@ CREATE TABLE Tasks (
   FOREIGN KEY (user_id) REFERENCES Users(id)
 );
 
-CREATE TABLE SharedTasks (
+CREATE TABLE todospring_shared_tasks (
   id VARCHAR(40) PRIMARY KEY NOT NULL UNIQUE,
   owner_id VARCHAR(40) NOT NULL,
   receptor_id VARCHAR(40) NOT NULL,

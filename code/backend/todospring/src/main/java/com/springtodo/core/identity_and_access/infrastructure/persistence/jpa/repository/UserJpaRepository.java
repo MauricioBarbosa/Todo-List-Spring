@@ -1,0 +1,16 @@
+package com.springtodo.core.identity_and_access.infrastructure.persistence.jpa.repository;
+
+import com.springtodo.core.identity_and_access.infrastructure.persistence.jpa.entity.UserJpa;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface UserJpaRepository extends JpaRepository<UserJpa, Long> {
+    @Query("select u from UserJpa u where u.email = :emailAddress")
+    UserJpa getByEmailAddress(@Param("emailAddress") String emailAddress);
+
+    @Query("select u from UserJpa u where u.id = :id")
+    UserJpa getById(@Param("id") String id);
+}

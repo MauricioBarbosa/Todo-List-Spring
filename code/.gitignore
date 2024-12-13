@@ -60,3 +60,5 @@ out/
 
 #envs
 env.properties
+
+todospring.db
