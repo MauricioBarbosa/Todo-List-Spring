@@ -60,4 +60,16 @@ public class Session implements Serializable {
 
         this.status = new SessionStatusConfirmated();
     }
+
+    @Override
+    public String toString() {
+        return "Session{" +
+                "sessionId=" + sessionId +
+                ", userId=" + userId +
+                ", duration=" + duration +
+                ", status=" + status +
+                ", confirmationCode=" + confirmationCode +
+                '}';
+    }
+
 }

@@ -69,7 +69,11 @@ public class SessionService {
             SessionId aSessionId,
             ConfirmationCode aConfirmationCode)
             throws SessionNotFound, CouldNotFindSession, ConfirmationCodeIsNotEqualToSessionConfirmationCode {
+        log.info("getting session, {}, {}", aSessionId, aConfirmationCode);
+
         Session session = this.sessionRepository.get(aSessionId);
+
+        log.info("session got! confirming, {}, {}, {}", aSessionId, aConfirmationCode, session);
 
         session.confirm(aConfirmationCode);
     }

@@ -1,6 +1,7 @@
 package com.springtodo.core.identity_and_access.domain.value_object;
 
 import java.util.UUID;
+
 import lombok.Getter;
 
 @Getter
@@ -17,15 +18,15 @@ public class ConfirmationCode {
     }
 
     public boolean equals(ConfirmationCode aConfirmationCode) {
-        return this.code == aConfirmationCode.getCode();
+        return this.code.equals(aConfirmationCode.getCode());
     }
 
     private void generateCode(int codeSize) {
         this.code = UUID.randomUUID()
-            .toString()
-            .replace("-", "")
-            .toUpperCase()
-            .substring(0, codeSize);
+                .toString()
+                .replace("-", "")
+                .toUpperCase()
+                .substring(0, codeSize);
     }
 
     @Override

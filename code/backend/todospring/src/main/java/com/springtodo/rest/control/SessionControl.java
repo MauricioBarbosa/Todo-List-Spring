@@ -31,54 +31,59 @@ import com.springtodo.rest.pojo.session_control.LoginInput;
 import com.springtodo.rest.pojo.session_control.LoginOutput;
 
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
+@Slf4j
 public class SessionControl {
 
-    @Autowired
-    private StartSession startSessionUseCase;
+        @Autowired
+        private StartSession startSessionUseCase;
 
-    @Autowired
-    private ConfirmCode confirmCodeUseCase;
+        @Autowired
+        private ConfirmCode confirmCodeUseCase;
 
-    @Autowired
-    private SendConfirmationCode sendConfirmationCode;
+        @Autowired
+        private SendConfirmationCode sendConfirmationCode;
 
-    @PostMapping("/login")
-    public ResponseEntity<LoginOutput> login(
-            @Valid @RequestBody LoginInput loginInput)
-            throws UserNotFoundException, CouldNotRetrieveUser, InvalidPassword, CouldNotSaveSession,
-            CouldNotGenerateToken {
-        StartSessionOutput startSessionOutput = startSessionUseCase.execute(
-                new StartSessionInput(
-                        loginInput.getEmail(),
-                        loginInput.getPassword()));
-        return ResponseEntity.status(HttpStatus.OK).body(
-                new LoginOutput(startSessionOutput.getSessionToken()));
-    }
+        @PostMapping("/login")
+        public ResponseEntity<LoginOutput> login(
+                        @Valid @RequestBody LoginInput loginInput)
+                        throws UserNotFoundException, CouldNotRetrieveUser, InvalidPassword, CouldNotSaveSession,
+                        CouldNotGenerateToken {
+                StartSessionOutput startSessionOutput = startSessionUseCase.execute(
+                                new StartSessionInput(
+                                                loginInput.getEmail(),
+                                                loginInput.getPassword()));
+                return ResponseEntity.status(HttpStatus.OK).body(
+                                new LoginOutput(startSessionOutput.getSessionToken()));
+        }
 
-    @PostMapping("/confirm-session")
-    public ResponseEntity<Void> confirmSession(
-            @RequestHeader String sessionToken,
-            @Valid @RequestBody ConfirmSessionInput confirmSessionInput)
-            throws InvalidToken, CouldNotDecodeToken, SessionNotFound, CouldNotFindSession,
-            ConfirmationCodeIsNotEqualToSessionConfirmationCode {
-        confirmCodeUseCase.execute(
-                new ConfirmCodeInput(
-                        confirmSessionInput.getConfirmationCode(),
-                        sessionToken));
+        @PostMapping("/confirm-session")
+        public ResponseEntity<Void> confirmSession(
+                        @RequestHeader String sessionToken,
+                        @Valid @RequestBody ConfirmSessionInput confirmSessionInput)
+                        throws InvalidToken, CouldNotDecodeToken, SessionNotFound, CouldNotFindSession,
+                        ConfirmationCodeIsNotEqualToSessionConfirmationCode {
 
-        return ResponseEntity.status(HttpStatus.OK).build();
-    }
+                confirmCodeUseCase.execute(
+                                new ConfirmCodeInput(
+                                                confirmSessionInput.getConfirmationCode(),
+                                                sessionToken));
 
-    @PostMapping("/send-confirmation-code")
-    public ResponseEntity<Void> sendConfirmationCode(
-            @RequestHeader String sessionToken)
-            throws InvalidToken, CouldNotDecodeToken, SessionNotFound, CouldNotFindSession, UserNotFoundException,
-            CouldNotRetrieveUser, CouldNotSendEmail {
-        sendConfirmationCode.execute(
-                new SendConfirmationCodeInput(sessionToken));
+                return ResponseEntity.status(HttpStatus.OK).build();
+        }
 
-        return ResponseEntity.status(HttpStatus.OK).build();
-    }
+        @PostMapping("/send-confirmation-code")
+        public ResponseEntity<Void> sendConfirmationCode(
+                        @RequestHeader String sessionToken)
+                        throws InvalidToken, CouldNotDecodeToken, SessionNotFound, CouldNotFindSession,
+                        UserNotFoundException,
+                        CouldNotRetrieveUser, CouldNotSendEmail {
+
+                sendConfirmationCode.execute(
+                                new SendConfirmationCodeInput(sessionToken));
+
+                return ResponseEntity.status(HttpStatus.OK).build();
+        }
 }

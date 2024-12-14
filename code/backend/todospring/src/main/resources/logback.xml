@@ -4,4 +4,14 @@
     <logger name="jdbc" level="OFF"/>
     <logger name="jdbc.sqltiming" level="DEBUG"/>
     <logger name="jdbc.resultsettable" level="DEBUG"/>
+    <logger name="org.springframework" level="ERROR" />
+    
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+    </root>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+    </root>
+
 </configuration>

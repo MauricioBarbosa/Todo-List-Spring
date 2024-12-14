@@ -10,4 +10,5 @@ public class ConfirmSessionInput {
 
     @NotBlank(message = "confirmation code must be informed")
     String confirmationCode;
+
 }
