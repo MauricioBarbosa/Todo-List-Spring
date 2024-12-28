@@ -14,7 +14,10 @@ import com.springtodo.core.identity_and_access.domain.service.SessionService;
 import com.springtodo.core.identity_and_access.domain.value_object.ConfirmationCode;
 import com.springtodo.core.identity_and_access.domain.value_object.SessionId;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class ConfirmCode {
 
     @Autowired
@@ -24,16 +27,18 @@ public class ConfirmCode {
     private SessionTokenGeneratorUtil sessionTokenGeneratorUtil;
 
     public void execute(ConfirmCodeInput confirmCodeInput)
-        throws InvalidToken, CouldNotDecodeToken, SessionNotFound, CouldNotFindSession, ConfirmationCodeIsNotEqualToSessionConfirmationCode {
+            throws InvalidToken, CouldNotDecodeToken, SessionNotFound, CouldNotFindSession,
+            ConfirmationCodeIsNotEqualToSessionConfirmationCode {
         SessionId sessionId = sessionTokenGeneratorUtil.decode(
-            confirmCodeInput.getSessionToken()
-        );
+                confirmCodeInput.getSessionToken());
 
         ConfirmationCode confirmationCode = new ConfirmationCode(
-            confirmCodeInput.getConfirmationCode()
-        );
+                confirmCodeInput.getConfirmationCode());
+
+        log.info("confirming session {}", sessionId);
 
         this.sessionService.confirmSession(sessionId, confirmationCode);
 
+        log.info("session confirmated! {}", sessionId);
     }
 }
