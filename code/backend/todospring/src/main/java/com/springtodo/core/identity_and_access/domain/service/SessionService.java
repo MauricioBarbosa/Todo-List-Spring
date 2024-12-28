@@ -96,4 +96,5 @@ public class SessionService {
 
         return session.isConfirmated();
     }
+
 }
