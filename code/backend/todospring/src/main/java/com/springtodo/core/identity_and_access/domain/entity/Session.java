@@ -6,6 +6,7 @@ import com.springtodo.core.identity_and_access.domain.exception.ConfirmationCode
 import com.springtodo.core.identity_and_access.domain.value_object.ConfirmationCode;
 import com.springtodo.core.identity_and_access.domain.value_object.SessionDuration;
 import com.springtodo.core.identity_and_access.domain.value_object.SessionId;
+import com.springtodo.core.identity_and_access.domain.value_object.SessionPermission;
 import com.springtodo.core.identity_and_access.domain.value_object.SessionStatus;
 import com.springtodo.core.identity_and_access.domain.value_object.SessionStatusConfirmated;
 import com.springtodo.core.identity_and_access.domain.value_object.SessionStatusStarted;
@@ -21,17 +22,20 @@ public class Session implements Serializable {
     private SessionDuration duration;
     private SessionStatus status;
     private ConfirmationCode confirmationCode;
+    private SessionPermission permissions;
 
     public Session(
             User user,
             Long durationInSeconds,
-            int confirmationCodeSize) {
+            int confirmationCodeSize,
+            SessionPermission permissions) {
         this.userId = user.getId();
         this.duration = new SessionDuration(durationInSeconds);
 
         this.sessionId = new SessionId();
         this.status = new SessionStatusStarted();
         this.confirmationCode = new ConfirmationCode(confirmationCodeSize);
+        this.permissions = permissions;
     }
 
     public Session(
@@ -45,6 +49,10 @@ public class Session implements Serializable {
         this.duration = duration;
         this.status = status;
         this.sessionId = sessionId;
+    }
+
+    public SessionPermission.Permissions[] getPermissions() {
+        return permissions.getPermissions();
     }
 
     public boolean isConfirmated() {
@@ -61,6 +69,21 @@ public class Session implements Serializable {
         this.status = new SessionStatusConfirmated();
     }
 
+    public static Session startChangePasswordSession(User user,
+            Long durationInSeconds,
+            int confirmationCodeSize) {
+
+        return new Session(user, durationInSeconds, confirmationCodeSize,
+                SessionPermission.createWithChangePasswordPermissions());
+    }
+
+    public static Session startUserSession(User user,
+            Long durationInSeconds,
+            int confirmationCodeSize) {
+
+        return new Session(user, durationInSeconds, confirmationCodeSize, SessionPermission.createUserPermissions());
+    }
+
     @Override
     public String toString() {
         return "Session{" +
@@ -69,6 +92,7 @@ public class Session implements Serializable {
                 ", duration=" + duration +
                 ", status=" + status +
                 ", confirmationCode=" + confirmationCode +
+                ", permissions=" + permissions +
                 '}';
     }
 

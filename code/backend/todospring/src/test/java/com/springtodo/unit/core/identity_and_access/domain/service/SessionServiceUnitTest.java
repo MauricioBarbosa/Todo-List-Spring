@@ -10,6 +10,20 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.Logger;
+import org.springframework.test.util.ReflectionTestUtils;
+
 import com.springtodo.core.identity_and_access.domain.entity.Session;
 import com.springtodo.core.identity_and_access.domain.entity.User;
 import com.springtodo.core.identity_and_access.domain.exception.ConfirmationCodeIsNotEqualToSessionConfirmationCode;
@@ -30,6 +44,7 @@ import com.springtodo.core.identity_and_access.domain.service.SessionService;
 import com.springtodo.core.identity_and_access.domain.value_object.ConfirmationCode;
 import com.springtodo.core.identity_and_access.domain.value_object.SessionDuration;
 import com.springtodo.core.identity_and_access.domain.value_object.SessionId;
+import com.springtodo.core.identity_and_access.domain.value_object.SessionPermission;
 import com.springtodo.core.identity_and_access.domain.value_object.SessionStatus;
 import com.springtodo.core.identity_and_access.domain.value_object.SessionStatusConfirmated;
 import com.springtodo.core.identity_and_access.domain.value_object.SessionStatusStarted;
@@ -38,17 +53,6 @@ import com.springtodo.core.identity_and_access.domain.value_object.UserId;
 import com.springtodo.core.identity_and_access.domain.value_object.UserPassword;
 import com.springtodo.unit.core.identity_and_access.domain.builder.SessionBuilder;
 import com.springtodo.unit.core.identity_and_access.domain.builder.UserBuilder;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.Logger;
-import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 public class SessionServiceUnitTest {
@@ -82,139 +86,183 @@ public class SessionServiceUnitTest {
         this.confirmationCodeSize = 5;
 
         this.user = new User(
-            new UserId(),
-            new UserEmail(userEmail),
-            new UserPassword(userPassword)
-        );
+                new UserId(),
+                new UserEmail(userEmail),
+                new UserPassword(userPassword));
 
         MockitoAnnotations.openMocks(this);
         ReflectionTestUtils.setField(
-            sessionService,
-            "sessionDurationInSeconds",
-            this.sessionDurationInSeconds
-        );
+                sessionService,
+                "sessionDurationInSeconds",
+                this.sessionDurationInSeconds);
 
         ReflectionTestUtils.setField(
-            sessionService,
-            "confirmationCodeSize",
-            this.confirmationCodeSize
-        );
+                sessionService,
+                "confirmationCodeSize",
+                this.confirmationCodeSize);
     }
 
-    @Test
-    @DisplayName(
-        "It should thrown CouldNotRetrieveUserException once repository throws CouldNotRetrieveUserException"
-    )
-    void shouldThrowCouldNotRetrieveUserException()
-        throws UserNotFoundException, CouldNotRetrieveUser, InvalidPassword {
-        UserEmail aUserEmail = new UserEmail("someuseremail@email.com");
-        UserPassword aUserPassword = new UserPassword("#someUserPassword");
-        CouldNotRetrieveUser couldNotRetrieveUserException =
-            new CouldNotRetrieveUser("Could not retrieve user for some reason");
+    @Nested
+    @DisplayName("Testing SessionService.startUserSession")
+    class TestStartUserSession {
+        @Test
+        @DisplayName("It should thrown CouldNotRetrieveUserException once repository throws CouldNotRetrieveUserException")
+        void shouldThrowCouldNotRetrieveUserException()
+                throws UserNotFoundException, CouldNotRetrieveUser, InvalidPassword {
+            UserEmail aUserEmail = new UserEmail("someuseremail@email.com");
+            UserPassword aUserPassword = new UserPassword("#someUserPassword");
+            CouldNotRetrieveUser couldNotRetrieveUserException = new CouldNotRetrieveUser(
+                    "Could not retrieve user for some reason");
 
-        when(userRepositoryMock.getUserByEmail(aUserEmail)).thenThrow(
-            couldNotRetrieveUserException
-        );
+            when(userRepositoryMock.getUserByEmail(aUserEmail)).thenThrow(
+                    couldNotRetrieveUserException);
 
-        assertThrows(CouldNotRetrieveUser.class, () -> {
-            sessionService.startSession(aUserPassword, aUserEmail);
-        });
+            assertThrows(CouldNotRetrieveUser.class, () -> {
+                sessionService.startUserSession(aUserPassword, aUserEmail);
+            });
+        }
+
+        @Test
+        @DisplayName("It should thrown UserNotFoundException once repository throws UserNotFoundException")
+        void shouldThrowUserNotFoundException()
+                throws UserNotFoundException, CouldNotRetrieveUser, InvalidPassword {
+            UserEmail aUserEmail = new UserEmail("someuseremail@email.com");
+            UserPassword aUserPassword = new UserPassword("#someUserPassword");
+            UserNotFoundException userNotFoundException = new UserNotFoundException(
+                    "Could not find user");
+
+            when(userRepositoryMock.getUserByEmail(aUserEmail)).thenThrow(
+                    userNotFoundException);
+
+            assertThrows(UserNotFoundException.class, () -> {
+                sessionService.startUserSession(aUserPassword, aUserEmail);
+            });
+        }
+
+        @Test
+        @DisplayName("It should thrown InvalidPasswordException")
+        public void shouldThrowInvalidPasswordException()
+                throws UserNotFoundException, CouldNotRetrieveUser, InvalidPassword {
+            UserEmail anUserEmail = new UserEmail("someuseremail@email.com");
+            UserPassword anUserPassword = new UserPassword("#someUserPassword2");
+
+            when(userRepositoryMock.getUserByEmail(anUserEmail)).thenReturn(user);
+
+            assertThrows(InvalidPassword.class, () -> {
+                sessionService.startUserSession(anUserPassword, anUserEmail);
+            });
+        }
+
+        @Test
+        @DisplayName("It should thrown CouldNotSaveSessionException")
+        void shouldThrowCouldNotSaveSessionException()
+                throws UserNotFoundException, CouldNotRetrieveUser, InvalidPassword, CouldNotSaveSession {
+            UserEmail aUserEmail = new UserEmail("someuseremail@email.com");
+            UserPassword aUserPassword = new UserPassword("#someUserPassword");
+            CouldNotSaveSession couldNotSaveSession = new CouldNotSaveSession(
+                    "Could not save session for some reason");
+
+            when(userRepositoryMock.getUserByEmail(aUserEmail)).thenReturn(
+                    user);
+
+            doThrow(couldNotSaveSession)
+                    .when(sessionRepositoryMock)
+                    .save(any(Session.class));
+
+            assertThrows(CouldNotSaveSession.class, () -> {
+                sessionService.startUserSession(aUserPassword, aUserEmail);
+            });
+        }
+
+        @Test
+        @DisplayName("It should return a session")
+        void shouldReturnASession()
+                throws UserNotFoundException, CouldNotRetrieveUser, InvalidPassword, CouldNotSaveSession {
+            UserEmail aUserEmail = new UserEmail("someuseremail@email.com");
+            UserPassword aUserPassword = new UserPassword("#someUserPassword");
+
+            when(userRepositoryMock.getUserByEmail(aUserEmail)).thenReturn(
+                    user);
+
+            doNothing().when(sessionRepositoryMock).save(any(Session.class));
+
+            Session session = sessionService.startUserSession(
+                    aUserPassword,
+                    aUserEmail);
+
+            assertEquals(session.getUserId(), user.getId());
+        }
     }
 
-    @Test
-    @DisplayName(
-        "It should thrown UserNotFoundException once repository throws UserNotFoundException"
-    )
-    void shouldThrowUserNotFoundException()
-        throws UserNotFoundException, CouldNotRetrieveUser, InvalidPassword {
-        UserEmail aUserEmail = new UserEmail("someuseremail@email.com");
-        UserPassword aUserPassword = new UserPassword("#someUserPassword");
-        UserNotFoundException userNotFoundException = new UserNotFoundException(
-            "Could not find user"
-        );
+    @Nested
+    @DisplayName("Testing SessionService.startChangePasswordSession")
+    class TestStartChangePasswordSession {
 
-        when(userRepositoryMock.getUserByEmail(aUserEmail)).thenThrow(
-            userNotFoundException
-        );
+        @Test
+        void shouldThrowUserNotFoundException() throws UserNotFoundException, CouldNotRetrieveUser {
+            UserEmail aUserEmail = new UserEmail("someuseremail@email.com");
+            CouldNotRetrieveUser couldNotRetrieveUserException = new CouldNotRetrieveUser(
+                    "Could not retrieve user for some reason");
 
-        assertThrows(UserNotFoundException.class, () -> {
-            sessionService.startSession(aUserPassword, aUserEmail);
-        });
-    }
+            when(userRepositoryMock.getUserByEmail(aUserEmail)).thenThrow(
+                    couldNotRetrieveUserException);
 
-    @Test
-    @DisplayName("It should thrown InvalidPasswordException")
-    public void shouldThrowInvalidPasswordException()
-        throws UserNotFoundException, CouldNotRetrieveUser, InvalidPassword {
-        UserEmail anUserEmail = new UserEmail("someuseremail@email.com");
-        UserPassword anUserPassword = new UserPassword("#someUserPassword2");
+            assertThrows(CouldNotRetrieveUser.class, () -> {
+                sessionService.startChangePasswordSession(aUserEmail);
+            });
+        }
 
-        when(userRepositoryMock.getUserByEmail(anUserEmail)).thenReturn(user);
+        @Test
+        void shouldThrowCouldNotStartSessionException()
+                throws UserNotFoundException, CouldNotRetrieveUser, CouldNotSaveSession {
+            UserEmail aUserEmail = new UserEmail("someuseremail@email.com");
+            CouldNotSaveSession couldNotSaveSession = new CouldNotSaveSession(
+                    "Could not save session for some reason");
 
-        assertThrows(InvalidPassword.class, () -> {
-            sessionService.startSession(anUserPassword, anUserEmail);
-        });
-    }
+            when(userRepositoryMock.getUserByEmail(aUserEmail)).thenReturn(user);
 
-    @Test
-    @DisplayName("It should thrown CouldNotSaveSessionException")
-    void shouldThrowCouldNotSaveSessionException()
-        throws UserNotFoundException, CouldNotRetrieveUser, InvalidPassword, CouldNotSaveSession {
-        UserEmail aUserEmail = new UserEmail("someuseremail@email.com");
-        UserPassword aUserPassword = new UserPassword("#someUserPassword");
-        CouldNotSaveSession couldNotSaveSession = new CouldNotSaveSession(
-            "Could not save session for some reason"
-        );
+            doThrow(couldNotSaveSession)
+                    .when(sessionRepositoryMock)
+                    .save(any(Session.class));
 
-        when(userRepositoryMock.getUserByEmail(aUserEmail)).thenReturn(
-            this.user
-        );
+            assertThrows(CouldNotSaveSession.class, () -> {
+                sessionService.startChangePasswordSession(aUserEmail);
+            });
+        }
 
-        doThrow(couldNotSaveSession)
-            .when(sessionRepositoryMock)
-            .save(any(Session.class));
+        @Test
+        void shouldReturnASession() throws CouldNotSaveSession, UserNotFoundException, CouldNotRetrieveUser {
+            UserEmail aUserEmail = new UserEmail("someuseremail@email.com");
 
-        assertThrows(CouldNotSaveSession.class, () -> {
-            sessionService.startSession(aUserPassword, aUserEmail);
-        });
-    }
+            when(userRepositoryMock.getUserByEmail(aUserEmail)).thenReturn(
+                    user);
 
-    @Test
-    @DisplayName("It should return a session")
-    void shouldReturnASession()
-        throws UserNotFoundException, CouldNotRetrieveUser, InvalidPassword, CouldNotSaveSession {
-        UserEmail aUserEmail = new UserEmail("someuseremail@email.com");
-        UserPassword aUserPassword = new UserPassword("#someUserPassword");
+            doNothing().when(sessionRepositoryMock).save(any(Session.class));
 
-        when(userRepositoryMock.getUserByEmail(aUserEmail)).thenReturn(
-            this.user
-        );
+            Session session = sessionService.startChangePasswordSession(
+                    aUserEmail);
 
-        doNothing().when(sessionRepositoryMock).save(any(Session.class));
+            assertEquals(session.getUserId(), user.getId());
+            assertTrue(
+                    Arrays.equals(session.getPermissions(),
+                            SessionPermission.createWithChangePasswordPermissions().getPermissions()));
+        }
 
-        Session session = sessionService.startSession(
-            aUserPassword,
-            aUserEmail
-        );
-
-        assertEquals(session.getUserId(), this.user.getId());
     }
 
     @Test
     @DisplayName("It should throw could not find session")
     void shouldThrowCouldNotFindSession()
-        throws SessionNotFound, CouldNotFindSession {
+            throws SessionNotFound, CouldNotFindSession {
         CouldNotFindSession couldNotFindSession = new CouldNotFindSession(
-            "Something happened"
-        );
+                "Something happened");
 
         SessionId sessionId = new SessionId("#someSessionId");
 
         ConfirmationCode confirmationCode = new ConfirmationCode("ASDXR");
 
         when(sessionRepositoryMock.get(any(SessionId.class))).thenThrow(
-            couldNotFindSession
-        );
+                couldNotFindSession);
 
         assertThrows(CouldNotFindSession.class, () -> {
             sessionService.confirmSession(sessionId, confirmationCode);
@@ -224,7 +272,7 @@ public class SessionServiceUnitTest {
     @Test
     @DisplayName("It should throw session not found")
     void shouldThrowSessionNotFound()
-        throws SessionNotFound, CouldNotFindSession {
+            throws SessionNotFound, CouldNotFindSession {
         SessionId sessionId = new SessionId("#someSessionId");
 
         SessionNotFound sessionNotFound = new SessionNotFound(sessionId);
@@ -232,8 +280,7 @@ public class SessionServiceUnitTest {
         ConfirmationCode confirmationCode = new ConfirmationCode("ASDXR");
 
         when(sessionRepositoryMock.get(any(SessionId.class))).thenThrow(
-            sessionNotFound
-        );
+                sessionNotFound);
 
         assertThrows(SessionNotFound.class, () -> {
             sessionService.confirmSession(sessionId, confirmationCode);
@@ -241,55 +288,48 @@ public class SessionServiceUnitTest {
     }
 
     @Test
-    @DisplayName(
-        "It should throw confirmation code is not equal to session confirmation code"
-    )
+    @DisplayName("It should throw confirmation code is not equal to session confirmation code")
     void shouldThrowConfirmationCodeIsNotEqualToSessionConfirmationCode()
-        throws SessionNotFound, CouldNotFindSession {
+            throws SessionNotFound, CouldNotFindSession {
         SessionId sessionId = new SessionId("#someSessionId");
 
         ConfirmationCode aConfirmationCode = new ConfirmationCode("ASDXR");
         ConfirmationCode sessionConfirmationCode = new ConfirmationCode(6);
 
         Session session = new Session(
-            sessionId,
-            new UserBuilder().build().getId(),
-            new SessionDuration(Long.valueOf(10)),
-            new SessionStatus(),
-            sessionConfirmationCode
-        );
+                sessionId,
+                new UserBuilder().build().getId(),
+                new SessionDuration(Long.valueOf(10)),
+                new SessionStatus(),
+                sessionConfirmationCode);
 
         when(sessionRepositoryMock.get(any(SessionId.class))).thenReturn(
-            session
-        );
+                session);
 
         assertThrows(
-            ConfirmationCodeIsNotEqualToSessionConfirmationCode.class,
-            () -> {
-                sessionService.confirmSession(sessionId, aConfirmationCode);
-            }
-        );
+                ConfirmationCodeIsNotEqualToSessionConfirmationCode.class,
+                () -> {
+                    sessionService.confirmSession(sessionId, aConfirmationCode);
+                });
     }
 
     @Test
     @DisplayName("it should confirmate the session")
     void shouldConfirmateTheSession()
-        throws SessionNotFound, CouldNotFindSession, ConfirmationCodeIsNotEqualToSessionConfirmationCode {
+            throws SessionNotFound, CouldNotFindSession, ConfirmationCodeIsNotEqualToSessionConfirmationCode {
         SessionId sessionId = new SessionId("#someSessionId");
 
         ConfirmationCode confirmationCode = new ConfirmationCode("ASDXR");
 
         Session session = new Session(
-            sessionId,
-            new UserBuilder().build().getId(),
-            new SessionDuration(Long.valueOf(10)),
-            new SessionStatus(),
-            confirmationCode
-        );
+                sessionId,
+                new UserBuilder().build().getId(),
+                new SessionDuration(Long.valueOf(10)),
+                new SessionStatus(),
+                confirmationCode);
 
         when(sessionRepositoryMock.get(any(SessionId.class))).thenReturn(
-            session
-        );
+                session);
 
         sessionService.confirmSession(sessionId, confirmationCode);
 
@@ -303,16 +343,14 @@ public class SessionServiceUnitTest {
         @Test
         @DisplayName("should throw CouldNotFindSession")
         void shouldThrowCouldNotFindSession()
-            throws SessionNotFound, CouldNotFindSession {
+                throws SessionNotFound, CouldNotFindSession {
             SessionId sessionId = new SessionId("#someSessionId");
 
             CouldNotFindSession couldNotFindSession = new CouldNotFindSession(
-                "Some error has occurred"
-            );
+                    "Some error has occurred");
 
             when(sessionRepositoryMock.get(any(SessionId.class))).thenThrow(
-                couldNotFindSession
-            );
+                    couldNotFindSession);
 
             assertThrows(CouldNotFindSession.class, () -> {
                 sessionService.sendConfirmationCode(sessionId);
@@ -322,14 +360,13 @@ public class SessionServiceUnitTest {
         @Test
         @DisplayName("should throw SessionNotFound")
         void shouldThrowSessionNotFound()
-            throws SessionNotFound, CouldNotFindSession {
+                throws SessionNotFound, CouldNotFindSession {
             SessionId sessionId = new SessionId("#someSessionId");
 
             SessionNotFound sessionNotFound = new SessionNotFound(sessionId);
 
             when(sessionRepositoryMock.get(any(SessionId.class))).thenThrow(
-                sessionNotFound
-            );
+                    sessionNotFound);
 
             assertThrows(SessionNotFound.class, () -> {
                 sessionService.sendConfirmationCode(sessionId);
@@ -339,19 +376,16 @@ public class SessionServiceUnitTest {
         @Test
         @DisplayName("should throw UserNotFound")
         void shouldThrowUserNotFound()
-            throws SessionNotFound, CouldNotFindSession, UserNotFoundException, CouldNotRetrieveUser {
+                throws SessionNotFound, CouldNotFindSession, UserNotFoundException, CouldNotRetrieveUser {
             SessionId sessionId = new SessionId("#someSessionId");
 
-            UserNotFoundException userNotFoundException =
-                new UserNotFoundException("Something happened");
+            UserNotFoundException userNotFoundException = new UserNotFoundException("Something happened");
 
             when(sessionRepositoryMock.get(any(SessionId.class))).thenReturn(
-                new SessionBuilder().build()
-            );
+                    new SessionBuilder().build());
 
             when(userRepositoryMock.getUserById(any(UserId.class))).thenThrow(
-                userNotFoundException
-            );
+                    userNotFoundException);
 
             assertThrows(UserNotFoundException.class, () -> {
                 sessionService.sendConfirmationCode(sessionId);
@@ -361,19 +395,16 @@ public class SessionServiceUnitTest {
         @Test
         @DisplayName("should throw CouldNotRetrieveUser")
         void shouldThrowCouldNotRetrieveUser()
-            throws SessionNotFound, CouldNotFindSession, UserNotFoundException, CouldNotRetrieveUser {
+                throws SessionNotFound, CouldNotFindSession, UserNotFoundException, CouldNotRetrieveUser {
             SessionId sessionId = new SessionId("#someSessionId");
 
-            CouldNotRetrieveUser couldNotRetrieveUser =
-                new CouldNotRetrieveUser("Something happened");
+            CouldNotRetrieveUser couldNotRetrieveUser = new CouldNotRetrieveUser("Something happened");
 
             when(sessionRepositoryMock.get(any(SessionId.class))).thenReturn(
-                new SessionBuilder().build()
-            );
+                    new SessionBuilder().build());
 
             when(userRepositoryMock.getUserById(any(UserId.class))).thenThrow(
-                couldNotRetrieveUser
-            );
+                    couldNotRetrieveUser);
 
             assertThrows(CouldNotRetrieveUser.class, () -> {
                 sessionService.sendConfirmationCode(sessionId);
@@ -383,27 +414,24 @@ public class SessionServiceUnitTest {
         @Test
         @DisplayName("should throw CouldNotSendEmail")
         void shouldThrowCouldNotSendEmail()
-            throws SessionNotFound, CouldNotFindSession, EmailNotInformed, PasswordNotInformed, IdNotInformed, UserNotFoundException, CouldNotRetrieveUser {
+                throws SessionNotFound, CouldNotFindSession, EmailNotInformed, PasswordNotInformed, IdNotInformed,
+                UserNotFoundException, CouldNotRetrieveUser {
             SessionId sessionId = new SessionId("#someSessionId");
 
             CouldNotSendEmail couldNotSendEmail = new CouldNotSendEmail(
-                "something happened"
-            );
+                    "something happened");
 
             when(sessionRepositoryMock.get(any(SessionId.class))).thenReturn(
-                new SessionBuilder().build()
-            );
+                    new SessionBuilder().build());
 
             when(userRepositoryMock.getUserById(any(UserId.class))).thenReturn(
-                new UserBuilder().build()
-            );
+                    new UserBuilder().build());
 
             doThrow(couldNotSendEmail)
-                .when(emailSenderProvider)
-                .sendConfirmationCode(
-                    any(ConfirmationCode.class),
-                    any(User.class)
-                );
+                    .when(emailSenderProvider)
+                    .sendConfirmationCode(
+                            any(ConfirmationCode.class),
+                            any(User.class));
 
             assertThrows(CouldNotSendEmail.class, () -> {
                 sessionService.sendConfirmationCode(sessionId);
@@ -413,23 +441,21 @@ public class SessionServiceUnitTest {
         @Test
         @DisplayName("should run with no exception")
         void shouldRunWithNoExceptions()
-            throws SessionNotFound, CouldNotFindSession, EmailNotInformed, PasswordNotInformed, IdNotInformed, UserNotFoundException, CouldNotRetrieveUser {
+                throws SessionNotFound, CouldNotFindSession, EmailNotInformed, PasswordNotInformed, IdNotInformed,
+                UserNotFoundException, CouldNotRetrieveUser {
             SessionId sessionId = new SessionId("#someSessionId");
 
             when(sessionRepositoryMock.get(any(SessionId.class))).thenReturn(
-                new SessionBuilder().build()
-            );
+                    new SessionBuilder().build());
 
             when(userRepositoryMock.getUserById(any(UserId.class))).thenReturn(
-                new UserBuilder().build()
-            );
+                    new UserBuilder().build());
 
             doNothing()
-                .when(emailSenderProvider)
-                .sendConfirmationCode(
-                    any(ConfirmationCode.class),
-                    any(User.class)
-                );
+                    .when(emailSenderProvider)
+                    .sendConfirmationCode(
+                            any(ConfirmationCode.class),
+                            any(User.class));
 
             assertAll(() -> {
                 sessionService.sendConfirmationCode(sessionId);
@@ -443,16 +469,14 @@ public class SessionServiceUnitTest {
 
         @Test
         void shouldThrowCouldNotFindSession()
-            throws SessionNotFound, CouldNotFindSession {
+                throws SessionNotFound, CouldNotFindSession {
             CouldNotFindSession couldNotFindSession = new CouldNotFindSession(
-                "Something happened"
-            );
+                    "Something happened");
 
             SessionId sessionId = new SessionId("#someSessionId");
 
             when(sessionRepositoryMock.get(any(SessionId.class))).thenThrow(
-                couldNotFindSession
-            );
+                    couldNotFindSession);
 
             assertThrows(CouldNotFindSession.class, () -> {
                 sessionService.isSessionConfirmed(sessionId);
@@ -461,14 +485,13 @@ public class SessionServiceUnitTest {
 
         @Test
         void shouldThrowSessionNotFound()
-            throws SessionNotFound, CouldNotFindSession {
+                throws SessionNotFound, CouldNotFindSession {
             SessionId sessionId = new SessionId("#someSessionId");
 
             SessionNotFound sessionNotFound = new SessionNotFound(sessionId);
 
             when(sessionRepositoryMock.get(any(SessionId.class))).thenThrow(
-                sessionNotFound
-            );
+                    sessionNotFound);
 
             assertThrows(SessionNotFound.class, () -> {
                 sessionService.isSessionConfirmed(sessionId);
@@ -482,16 +505,14 @@ public class SessionServiceUnitTest {
             ConfirmationCode sessionConfirmationCode = new ConfirmationCode(6);
 
             Session session = new Session(
-                sessionId,
-                new UserBuilder().build().getId(),
-                new SessionDuration(Long.valueOf(10)),
-                new SessionStatusStarted(),
-                sessionConfirmationCode
-            );
+                    sessionId,
+                    new UserBuilder().build().getId(),
+                    new SessionDuration(Long.valueOf(10)),
+                    new SessionStatusStarted(),
+                    sessionConfirmationCode);
 
             when(sessionRepositoryMock.get(any(SessionId.class))).thenReturn(
-                session
-            );
+                    session);
 
             assertFalse(sessionService.isSessionConfirmed(sessionId));
         }
@@ -503,16 +524,14 @@ public class SessionServiceUnitTest {
             ConfirmationCode sessionConfirmationCode = new ConfirmationCode(6);
 
             Session session = new Session(
-                sessionId,
-                new UserBuilder().build().getId(),
-                new SessionDuration(Long.valueOf(10)),
-                new SessionStatusConfirmated(),
-                sessionConfirmationCode
-            );
+                    sessionId,
+                    new UserBuilder().build().getId(),
+                    new SessionDuration(Long.valueOf(10)),
+                    new SessionStatusConfirmated(),
+                    sessionConfirmationCode);
 
             when(sessionRepositoryMock.get(any(SessionId.class))).thenReturn(
-                session
-            );
+                    session);
 
             assertTrue(sessionService.isSessionConfirmed(sessionId));
         }
