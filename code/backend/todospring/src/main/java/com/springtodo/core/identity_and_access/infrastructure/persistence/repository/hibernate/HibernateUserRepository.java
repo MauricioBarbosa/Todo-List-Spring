@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 
 import com.springtodo.core.identity_and_access.domain.entity.User;
 import com.springtodo.core.identity_and_access.domain.exception.CouldNotRetrieveUser;
+import com.springtodo.core.identity_and_access.domain.exception.CouldNotSaveUser;
 import com.springtodo.core.identity_and_access.domain.exception.UserNotFoundException;
 import com.springtodo.core.identity_and_access.domain.repository.UserRepository;
 import com.springtodo.core.identity_and_access.domain.value_object.UserEmail;
@@ -21,51 +22,53 @@ public class HibernateUserRepository extends UserRepository {
 
     @Override
     public User getUserByEmail(UserEmail anUserEmail)
-        throws UserNotFoundException, CouldNotRetrieveUser {
+            throws UserNotFoundException, CouldNotRetrieveUser {
         try {
             UserJpa userJpa = userJpaRepository.getByEmailAddress(anUserEmail.getEmail());
 
-            if(userJpa == null){
+            if (userJpa == null) {
                 throw new UserNotFoundException("user of email" + anUserEmail.getEmail() + " not found");
             }
 
             User user = new User(
-                new UserId(userJpa.getId().toString()),
-                new UserEmail(userJpa.getEmail()),
-                new UserPassword(userJpa.getPassword())
-            );
+                    new UserId(userJpa.getId().toString()),
+                    new UserEmail(userJpa.getEmail()),
+                    new UserPassword(userJpa.getPassword()));
 
             return user;
         } catch (UserNotFoundException e) {
             throw e;
-        } catch(Exception e){
-            throw new CouldNotRetrieveUser(e.getMessage()); 
+        } catch (Exception e) {
+            throw new CouldNotRetrieveUser(e.getMessage());
         }
     }
 
     @Override
     public User getUserById(UserId userId)
-        throws UserNotFoundException, CouldNotRetrieveUser {
-            try {
-                UserJpa userJpa = userJpaRepository.getById(userId.getId());
+            throws UserNotFoundException, CouldNotRetrieveUser {
+        try {
+            UserJpa userJpa = userJpaRepository.getById(userId.getId());
 
-                if(userJpa == null){
-                    throw new UserNotFoundException("user of id: " + userId.getId() + " not found");
-                }
+            if (userJpa == null) {
+                throw new UserNotFoundException("user of id: " + userId.getId() + " not found");
+            }
 
-                User user = new User(
+            User user = new User(
                     new UserId(userJpa.getId().toString()),
                     new UserEmail(userJpa.getEmail()),
-                    new UserPassword(userJpa.getPassword())
-                );
+                    new UserPassword(userJpa.getPassword()));
 
-                return user;
-            } 
-            catch (UserNotFoundException e) {
-                throw e;
-            }
-            catch(Exception e){
-                throw new CouldNotRetrieveUser(e.getMessage()); 
-            }
+            return user;
+        } catch (UserNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new CouldNotRetrieveUser(e.getMessage());
+        }
+    }
+
+    @Override
+    public void save(User user) throws CouldNotSaveUser {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'save'");
     }
 }
