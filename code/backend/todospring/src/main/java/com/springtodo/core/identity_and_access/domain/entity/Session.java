@@ -23,6 +23,7 @@ public class Session implements Serializable {
     private SessionStatus status;
     private ConfirmationCode confirmationCode;
     private SessionPermission permissions;
+    private boolean isDetroyed;
 
     public Session(
             User user,
@@ -49,6 +50,8 @@ public class Session implements Serializable {
         this.duration = duration;
         this.status = status;
         this.sessionId = sessionId;
+
+        this.isDetroyed = false;
     }
 
     public SessionPermission.Permissions[] getPermissions() {
@@ -57,6 +60,14 @@ public class Session implements Serializable {
 
     public boolean isConfirmated() {
         return this.status.getClass() == SessionStatusConfirmated.class;
+    }
+
+    public void destroy() {
+        this.isDetroyed = true;
+    }
+
+    public boolean isValidSession() {
+        return !this.isDetroyed && this.isConfirmated();
     }
 
     public void confirm(ConfirmationCode aConfirmationCode)

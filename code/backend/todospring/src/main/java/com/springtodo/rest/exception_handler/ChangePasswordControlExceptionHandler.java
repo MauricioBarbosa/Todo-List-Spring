@@ -1,7 +1,14 @@
 package com.springtodo.rest.exception_handler;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.springtodo.core.identity_and_access.application.exception.CouldNotDecodeToken;
@@ -19,14 +26,52 @@ import com.springtodo.rest.pojo.shared.UnauthorizedOutput;
 
 import lombok.extern.slf4j.Slf4j;
 
+@ControllerAdvice
 @Slf4j
 public class ChangePasswordControlExceptionHandler {
 
+    @ExceptionHandler({ MissingRequestHeaderException.class })
+    public ResponseEntity<BadRequestOutput> handleMissingRequestHeader(
+            MissingRequestHeaderException ex) {
+
+        ArrayList<String> messages = new ArrayList<String>();
+
+        messages.add("Required header '" + ex.getHeaderName() + "' is not present.");
+
+        BadRequestOutput badRequestOutput = new BadRequestOutput();
+
+        badRequestOutput.setMessages(messages);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(badRequestOutput);
+    }
+
+    @ExceptionHandler({ MethodArgumentNotValidException.class })
+    public ResponseEntity<BadRequestOutput> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException ex) {
+
+        final List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors();
+        ArrayList<String> messages = new ArrayList<String>();
+
+        for (FieldError fieldError : fieldErrors) {
+            messages.add(fieldError.getDefaultMessage());
+        }
+
+        BadRequestOutput badRequestOutput = new BadRequestOutput();
+
+        badRequestOutput.setMessages(messages);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(badRequestOutput);
+    }
+
     @ExceptionHandler({ InvalidToken.class })
-    public ResponseEntity<UnauthorizedOutput> handleInvalidToken(InvalidToken invalidPassword) {
+    public ResponseEntity<UnauthorizedOutput> handleInvalidToken(InvalidToken invalidToken) {
         UnauthorizedOutput unauthorizedOutput = new UnauthorizedOutput();
 
-        unauthorizedOutput.setMessage(invalidPassword.getMessage());
+        ArrayList<String> messages = new ArrayList<String>();
+
+        messages.add(invalidToken.getMessage());
+
+        unauthorizedOutput.setMessages(messages);
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
                 unauthorizedOutput);
@@ -36,7 +81,11 @@ public class ChangePasswordControlExceptionHandler {
     public ResponseEntity<UnauthorizedOutput> handleSessionNotFound(SessionNotFound sessionNotFound) {
         UnauthorizedOutput unauthorizedOutput = new UnauthorizedOutput();
 
-        unauthorizedOutput.setMessage(sessionNotFound.getMessage());
+        ArrayList<String> messages = new ArrayList<String>();
+
+        messages.add(sessionNotFound.getMessage());
+
+        unauthorizedOutput.setMessages(messages);
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
                 unauthorizedOutput);
@@ -65,8 +114,11 @@ public class ChangePasswordControlExceptionHandler {
     @ExceptionHandler({ InvalidPassword.class })
     public ResponseEntity<BadRequestOutput> handleInvalidPassword(InvalidPassword invalidPassword) {
         BadRequestOutput badRequestOutput = new BadRequestOutput();
+        ArrayList<String> errors = new ArrayList<String>();
 
-        badRequestOutput.setMessage(invalidPassword.getMessage());
+        errors.add(invalidPassword.getMessage());
+
+        badRequestOutput.setMessages(errors);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                 badRequestOutput);
@@ -76,8 +128,11 @@ public class ChangePasswordControlExceptionHandler {
     public ResponseEntity<BadRequestOutput> handleOldPasswordDoesNotEqualToUserPassword(
             OldPasswordDoesNotEqualToUserPassword oldPasswordDoesNotEqualToUserPassword) {
         BadRequestOutput badRequestOutput = new BadRequestOutput();
+        ArrayList<String> errors = new ArrayList<String>();
 
-        badRequestOutput.setMessage(oldPasswordDoesNotEqualToUserPassword.getMessage());
+        errors.add(oldPasswordDoesNotEqualToUserPassword.getMessage());
+
+        badRequestOutput.setMessages(errors);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                 badRequestOutput);
@@ -87,8 +142,11 @@ public class ChangePasswordControlExceptionHandler {
     public ResponseEntity<BadRequestOutput> handleNewPasswordShouldNotEqualsToPreviousPassword(
             NewPasswordShouldNotEqualsToPreviousPassword newPasswordShouldNotEqualsToPreviousPassword) {
         BadRequestOutput badRequestOutput = new BadRequestOutput();
+        ArrayList<String> errors = new ArrayList<String>();
 
-        badRequestOutput.setMessage(newPasswordShouldNotEqualsToPreviousPassword.getMessage());
+        errors.add(newPasswordShouldNotEqualsToPreviousPassword.getMessage());
+
+        badRequestOutput.setMessages(errors);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                 badRequestOutput);

@@ -1,5 +1,7 @@
 package com.springtodo.rest.pojo.shared;
 
+import java.util.ArrayList;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,5 +9,5 @@ import lombok.Setter;
 @Setter
 public class UnauthorizedOutput {
 
-    String message;
+    ArrayList<String> messages;
 }

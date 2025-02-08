@@ -1,7 +1,12 @@
 package com.springtodo.rest.exception_handler;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -86,11 +91,33 @@ public class SessionControlExceptionHandler {
         return buildForbiddenResponse(invalidToken);
     }
 
+    @ExceptionHandler({ MethodArgumentNotValidException.class })
+    public ResponseEntity<BadRequestOutput> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException ex) {
+
+        final List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors();
+        ArrayList<String> messages = new ArrayList<String>();
+
+        for (FieldError fieldError : fieldErrors) {
+            messages.add(fieldError.getDefaultMessage());
+        }
+
+        BadRequestOutput badRequestOutput = new BadRequestOutput();
+
+        badRequestOutput.setMessages(messages);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(badRequestOutput);
+    }
+
     private ResponseEntity<BadRequestOutput> buildBadRequestResponse(
             Exception exception) {
         BadRequestOutput badRequestOutput = new BadRequestOutput();
 
-        badRequestOutput.setMessage(exception.getMessage());
+        ArrayList<String> messages = new ArrayList<String>();
+
+        messages.add(exception.getMessage());
+
+        badRequestOutput.setMessages(messages);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                 badRequestOutput);
@@ -103,7 +130,11 @@ public class SessionControlExceptionHandler {
 
         UnauthorizedOutput unauthorizedOutput = new UnauthorizedOutput();
 
-        unauthorizedOutput.setMessage(exception.getMessage());
+        ArrayList<String> messages = new ArrayList<String>();
+
+        messages.add(exception.getMessage());
+
+        unauthorizedOutput.setMessages(messages);
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
                 unauthorizedOutput);

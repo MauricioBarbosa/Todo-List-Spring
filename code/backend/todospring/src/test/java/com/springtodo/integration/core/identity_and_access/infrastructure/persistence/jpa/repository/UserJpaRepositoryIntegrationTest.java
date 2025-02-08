@@ -27,7 +27,7 @@ public class UserJpaRepositoryIntegrationTest {
     private String userEmail = "some@email1.com";
     private String userPassword = "#somePassword";
     private String userFullname = "Some full name";
-    private String id = UUID.randomUUID().toString();
+    private UUID id = UUID.randomUUID();
 
     @BeforeEach
     void setUp() {
@@ -37,7 +37,7 @@ public class UserJpaRepositoryIntegrationTest {
         userJpa.setEmail(this.userEmail);
         userJpa.setPassword(this.userPassword);
         userJpa.setFullname(this.userFullname);
-        userJpa.setId(UUID.fromString(id));
+        userJpa.setId(id);
 
         userJpaRepository.save(userJpa);
     }
@@ -75,7 +75,7 @@ public class UserJpaRepositoryIntegrationTest {
         }
 
         void should_NotReturnAUser() {
-            String fakeId = "someFakeId";
+            UUID fakeId = UUID.randomUUID();
 
             UserJpa result = userJpaRepository.getById(fakeId);
 

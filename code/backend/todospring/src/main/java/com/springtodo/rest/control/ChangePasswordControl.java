@@ -23,10 +23,8 @@ import com.springtodo.core.identity_and_access.domain.exception.UserNotFoundExce
 import com.springtodo.rest.pojo.change_password_control.ChangePasswordRequestBody;
 
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@Slf4j
 public class ChangePasswordControl {
 
     @Autowired

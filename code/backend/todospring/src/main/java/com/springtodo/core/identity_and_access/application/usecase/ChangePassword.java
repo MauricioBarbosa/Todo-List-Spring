@@ -1,6 +1,7 @@
 package com.springtodo.core.identity_and_access.application.usecase;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.springtodo.core.identity_and_access.application.dto.ChangePasswordInput;
 import com.springtodo.core.identity_and_access.application.exception.CouldNotDecodeToken;
@@ -24,6 +25,7 @@ import com.springtodo.core.identity_and_access.domain.value_object.UserPassword;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Service
 public class ChangePassword {
 
     @Autowired
@@ -39,12 +41,16 @@ public class ChangePassword {
             throws InvalidToken, CouldNotDecodeToken, SessionNotFound, CouldNotFindSession, UserNotFoundException,
             CouldNotRetrieveUser, InvalidPassword, OldPasswordDoesNotEqualToUserPassword,
             NewPasswordShouldNotEqualsToPreviousPassword, CouldNotSaveUser {
+        SessionId sessionId = sessionTokenGeneratorUtil.decode(changePasswordInput.getSessionToken());
+
         UserPassword newUserPassword = UserPassword.create(changePasswordInput.getNewPassword());
         UserPassword oldUserPassword = UserPassword.create(changePasswordInput.getOldPassword());
 
-        SessionId sessionId = sessionTokenGeneratorUtil.decode(changePasswordInput.getSessionToken());
-
         Session session = sessionRepository.get(sessionId);
+
+        if (!session.isValidSession()) {
+            throw new InvalidToken();
+        }
 
         User user = userRepository.getUserById(session.getUserId());
 
