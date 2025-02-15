@@ -4,6 +4,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
+import java.util.UUID;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
 import com.springtodo.core.identity_and_access.domain.entity.User;
 import com.springtodo.core.identity_and_access.domain.exception.CouldNotRetrieveUser;
 import com.springtodo.core.identity_and_access.domain.exception.UserNotFoundException;
@@ -13,14 +23,6 @@ import com.springtodo.core.identity_and_access.domain.value_object.UserPassword;
 import com.springtodo.core.identity_and_access.infrastructure.persistence.jpa.entity.UserJpa;
 import com.springtodo.core.identity_and_access.infrastructure.persistence.jpa.repository.UserJpaRepository;
 import com.springtodo.core.identity_and_access.infrastructure.persistence.repository.hibernate.HibernateUserRepository;
-import java.util.UUID;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 public class HibernateUserRepositoryUnitTest {
 
@@ -46,8 +48,7 @@ public class HibernateUserRepositoryUnitTest {
             RuntimeException exception = new RuntimeException("Some exception has thrown");
 
             when(
-                userJpaRepository.getByEmailAddress(userEmail.getEmail())
-            ).thenThrow(exception);
+                    userJpaRepository.getByEmailAddress(userEmail.getEmail())).thenThrow(exception);
 
             assertThrows(CouldNotRetrieveUser.class, () -> {
                 hibernateUserRepository.getUserByEmail(userEmail);
@@ -57,8 +58,7 @@ public class HibernateUserRepositoryUnitTest {
         @Test
         void should_ThrowUserNotFoundException() {
             when(
-                userJpaRepository.getByEmailAddress(userEmail.getEmail())
-            ).thenReturn(null);
+                    userJpaRepository.getByEmailAddress(userEmail.getEmail())).thenReturn(null);
 
             assertThrows(UserNotFoundException.class, () -> {
                 hibernateUserRepository.getUserByEmail(userEmail);
@@ -75,14 +75,12 @@ public class HibernateUserRepositoryUnitTest {
             userJpa.setId(UUID.randomUUID());
 
             User user = new User(
-                new UserId(userJpa.getId().toString()),
-                new UserEmail(userJpa.getEmail()),
-                new UserPassword(userJpa.getPassword())
-            );
+                    new UserId(userJpa.getId().toString()),
+                    new UserEmail(userJpa.getEmail()),
+                    new UserPassword(userJpa.getPassword()));
 
             when(
-                userJpaRepository.getByEmailAddress(userEmail.getEmail())
-            ).thenReturn(userJpa);
+                    userJpaRepository.getByEmailAddress(userEmail.getEmail())).thenReturn(userJpa);
 
             assertEquals(userJpa.getId().toString(), user.getId().getId());
         }
@@ -98,9 +96,8 @@ public class HibernateUserRepositoryUnitTest {
         void should_ThrowCouldNotRetrieveUser() {
             RuntimeException exception = new RuntimeException("Some exception has thrown");
 
-            when(userJpaRepository.getById(userId.getId())).thenThrow(
-                exception
-            );
+            when(userJpaRepository.getById(UUID.fromString(userId.getId()))).thenThrow(
+                    exception);
 
             assertThrows(CouldNotRetrieveUser.class, () -> {
                 hibernateUserRepository.getUserById(userId);
@@ -109,8 +106,7 @@ public class HibernateUserRepositoryUnitTest {
 
         void should_ThrowUserNotFoundException() {
             when(
-                userJpaRepository.getById(userId.getId())
-            ).thenReturn(null);
+                    userJpaRepository.getById(UUID.fromString(userId.getId()))).thenReturn(null);
 
             assertThrows(UserNotFoundException.class, () -> {
                 hibernateUserRepository.getUserById(userId);
@@ -126,14 +122,12 @@ public class HibernateUserRepositoryUnitTest {
             userJpa.setId(UUID.randomUUID());
 
             User user = new User(
-                new UserId(userJpa.getId().toString()),
-                new UserEmail(userJpa.getEmail()),
-                new UserPassword(userJpa.getPassword())
-            );
+                    new UserId(userJpa.getId().toString()),
+                    new UserEmail(userJpa.getEmail()),
+                    new UserPassword(userJpa.getPassword()));
 
             when(
-                userJpaRepository.getById(userId.getId())
-            ).thenReturn(userJpa);
+                    userJpaRepository.getById(UUID.fromString(userId.getId()))).thenReturn(userJpa);
 
             assertEquals(userJpa.getId().toString(), user.getId().getId());
         }

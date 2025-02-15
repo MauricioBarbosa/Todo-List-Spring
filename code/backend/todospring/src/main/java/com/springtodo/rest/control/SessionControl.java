@@ -10,14 +10,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.springtodo.core.identity_and_access.application.dto.ConfirmCodeInput;
 import com.springtodo.core.identity_and_access.application.dto.SendConfirmationCodeInput;
-import com.springtodo.core.identity_and_access.application.dto.StartSessionInput;
-import com.springtodo.core.identity_and_access.application.dto.StartSessionOutput;
+import com.springtodo.core.identity_and_access.application.dto.StartUserSessionInput;
+import com.springtodo.core.identity_and_access.application.dto.StartUserSessionOutput;
 import com.springtodo.core.identity_and_access.application.exception.CouldNotDecodeToken;
 import com.springtodo.core.identity_and_access.application.exception.CouldNotGenerateToken;
 import com.springtodo.core.identity_and_access.application.exception.InvalidToken;
 import com.springtodo.core.identity_and_access.application.usecase.ConfirmCode;
 import com.springtodo.core.identity_and_access.application.usecase.SendConfirmationCode;
-import com.springtodo.core.identity_and_access.application.usecase.StartSession;
+import com.springtodo.core.identity_and_access.application.usecase.StartUserSession;
 import com.springtodo.core.identity_and_access.domain.exception.ConfirmationCodeIsNotEqualToSessionConfirmationCode;
 import com.springtodo.core.identity_and_access.domain.exception.CouldNotFindSession;
 import com.springtodo.core.identity_and_access.domain.exception.CouldNotRetrieveUser;
@@ -38,7 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 public class SessionControl {
 
         @Autowired
-        private StartSession startSessionUseCase;
+        private StartUserSession startUserSessionUseCase;
 
         @Autowired
         private ConfirmCode confirmCodeUseCase;
@@ -51,10 +51,13 @@ public class SessionControl {
                         @Valid @RequestBody LoginInput loginInput)
                         throws UserNotFoundException, CouldNotRetrieveUser, InvalidPassword, CouldNotSaveSession,
                         CouldNotGenerateToken {
-                StartSessionOutput startSessionOutput = startSessionUseCase.execute(
-                                new StartSessionInput(
-                                                loginInput.getEmail(),
-                                                loginInput.getPassword()));
+                StartUserSessionInput startUserSessionInput = new StartUserSessionInput();
+
+                startUserSessionInput.setEmail(loginInput.getEmail());
+                startUserSessionInput.setPassword(loginInput.getPassword());
+
+                StartUserSessionOutput startSessionOutput = startUserSessionUseCase.execute(
+                                startUserSessionInput);
                 return ResponseEntity.status(HttpStatus.OK).body(
                                 new LoginOutput(startSessionOutput.getSessionToken()));
         }

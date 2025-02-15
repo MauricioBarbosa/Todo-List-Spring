@@ -43,7 +43,7 @@ public class SessionService {
     @Value("${confirmationCodeSize}")
     private int confirmationCodeSize;
 
-    public Session startSession(
+    public Session startUserSession(
             UserPassword anUserPassword,
             UserEmail anUserEmail)
             throws UserNotFoundException, CouldNotRetrieveUser, InvalidPassword, CouldNotSaveSession {
@@ -55,12 +55,28 @@ public class SessionService {
             throw new InvalidPassword("user password doesn't match");
         }
 
-        Session session = new Session(
-                user,
-                this.sessionDurationInSeconds,
-                this.confirmationCodeSize);
+        Session session = Session.startUserSession(user, sessionDurationInSeconds, confirmationCodeSize);
 
         this.sessionRepository.save(session);
+
+        return session;
+    }
+
+    public Session startChangePasswordSession(UserEmail anUserEmail)
+            throws UserNotFoundException, CouldNotRetrieveUser, CouldNotSaveSession {
+        log.info("getting user by email, {}", anUserEmail);
+
+        User user = this.userRepository.getUserByEmail(anUserEmail);
+
+        log.info("user got! creating session, user: {}", user);
+
+        Session session = Session.startChangePasswordSession(user, sessionDurationInSeconds, confirmationCodeSize);
+
+        log.info("session created! saving session: {}", session);
+
+        this.sessionRepository.save(session);
+
+        log.info("session saved!", session);
 
         return session;
     }

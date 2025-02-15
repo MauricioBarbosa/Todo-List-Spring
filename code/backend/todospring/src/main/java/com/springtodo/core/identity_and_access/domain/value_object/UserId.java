@@ -26,4 +26,8 @@ public class UserId implements Serializable {
     private void generateId() {
         this.id = UUID.randomUUID().toString();
     }
+
+    public static UserId createNewUserId() {
+        return new UserId();
+    }
 }
