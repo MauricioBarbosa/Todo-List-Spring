@@ -5,6 +5,7 @@ CREATE TABLE todospring_users (
   fullname VARCHAR(300) NOT NULL,
   password VARCHAR(10) NOT NULL,
   picture_path VARCHAR(200)
+  confirmed BOOLEAN NOT NULL CHECK (confirmed IN (0, 1))
 );
 
 CREATE TABLE todospring_tasks (

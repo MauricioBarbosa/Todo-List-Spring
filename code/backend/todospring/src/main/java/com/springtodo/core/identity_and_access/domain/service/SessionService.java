@@ -14,7 +14,7 @@ import com.springtodo.core.identity_and_access.domain.exception.CouldNotSendEmai
 import com.springtodo.core.identity_and_access.domain.exception.InvalidPassword;
 import com.springtodo.core.identity_and_access.domain.exception.SessionNotFound;
 import com.springtodo.core.identity_and_access.domain.exception.UserNotFoundException;
-import com.springtodo.core.identity_and_access.domain.provider.EmailSenderProvider;
+import com.springtodo.core.identity_and_access.domain.provider.EmailProvider;
 import com.springtodo.core.identity_and_access.domain.repository.SessionRepository;
 import com.springtodo.core.identity_and_access.domain.repository.UserRepository;
 import com.springtodo.core.identity_and_access.domain.value_object.ConfirmationCode;
@@ -35,7 +35,7 @@ public class SessionService {
     private SessionRepository sessionRepository;
 
     @Autowired
-    private EmailSenderProvider emailSenderProvider;
+    private EmailProvider emailSenderProvider;
 
     @Value("${sessionDurationInSeconds}")
     private Long sessionDurationInSeconds;

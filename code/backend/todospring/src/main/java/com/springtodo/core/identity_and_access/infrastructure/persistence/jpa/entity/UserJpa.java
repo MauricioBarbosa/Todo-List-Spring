@@ -26,4 +26,6 @@ public class UserJpa {
     private String fullname;
 
     private String picture_path;
+
+    private Boolean confirmated;
 }

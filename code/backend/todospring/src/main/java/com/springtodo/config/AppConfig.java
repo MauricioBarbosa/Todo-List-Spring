@@ -8,10 +8,10 @@ import org.springframework.core.annotation.Order;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
 import com.springtodo.core.identity_and_access.application.utils.SessionTokenGeneratorUtil;
-import com.springtodo.core.identity_and_access.domain.provider.EmailSenderProvider;
+import com.springtodo.core.identity_and_access.domain.provider.EmailProvider;
 import com.springtodo.core.identity_and_access.domain.repository.SessionRepository;
 import com.springtodo.core.identity_and_access.domain.repository.UserRepository;
-import com.springtodo.core.identity_and_access.infrastructure.mock.EmailSenderProviderMock;
+import com.springtodo.core.identity_and_access.infrastructure.mock.EmailProviderMock;
 import com.springtodo.core.identity_and_access.infrastructure.persistence.repository.hibernate.HibernateUserRepository;
 import com.springtodo.core.identity_and_access.infrastructure.persistence.repository.in_memory.InMemorySessionRepository;
 import com.springtodo.core.identity_and_access.infrastructure.utils.JjwtSessionTokenGeneratorUtil;
@@ -45,8 +45,8 @@ public class AppConfig {
     }
 
     @Bean
-    public EmailSenderProvider emailSenderProvider() {
-        return new EmailSenderProviderMock();
+    public EmailProvider emailSenderProvider() {
+        return new EmailProviderMock();
     }
 
     @Bean

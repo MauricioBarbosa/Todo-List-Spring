@@ -12,7 +12,8 @@ public class SessionPermission {
         UPDATE_TASK,
         READ_SHARED_TASK,
         SHARE_TASK,
-        CHANGE_USER_PASSWORD;
+        CHANGE_USER_PASSWORD,
+        CONFIRM_USER;
     }
 
     private final Permissions permissions[];
@@ -30,6 +31,12 @@ public class SessionPermission {
 
     public static SessionPermission createWithChangePasswordPermissions() {
         Permissions[] permissions = { Permissions.CHANGE_USER_PASSWORD };
+
+        return new SessionPermission(permissions);
+    }
+
+    public static SessionPermission createWithConfirmUserPermission() {
+        Permissions[] permissions = { Permissions.CONFIRM_USER };
 
         return new SessionPermission(permissions);
     }
